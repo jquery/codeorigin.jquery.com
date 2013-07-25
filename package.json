@@ -27,7 +27,8 @@
     "grunt-jquery-content": "0.9.0",
     "grunt-check-modules": "0.1.0",
     "semver": "2.0.11",
-    "underscore": "1.5.1"
+    "underscore": "1.5.1",
+    "handlebars": "1.0.12"
   },
   "keywords": []
 }
