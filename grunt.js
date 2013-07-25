@@ -125,7 +125,7 @@ function getLatestStable( organized ) {
 var rjQueryVersion = /(jquery-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min|pack))?\.js)/;
 var rjQueryMigrateVersion = /(jquery-migrate-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.min)?\.js)/;
 grunt.registerTask( "build-index", function() {
-	var mainIndex, projectIndex, latestStable,
+	var mainIndex, projectIndex, latestStable, gitListing,
 		files = grunt.file.expandFiles( "cdn/**.js" ),
 		jQueryCoreFiles = parseFiles( files, rjQueryVersion ),
 		jQueryMigrateFiles = parseFiles( files, rjQueryMigrateVersion ),
@@ -153,13 +153,15 @@ grunt.registerTask( "build-index", function() {
 	mainIndex += listItem( "jQuery Core", latestStable, jQuery1[ latestStable ] );
 	mainIndex += "</ul>";
 
-	mainIndex += "<h3>jQuery - Live git versions</h3>";
-	mainIndex += "<p>UNSTABLE, NOT FOR PRODUCTION</p>";
-	mainIndex += "<ul>";
-	mainIndex += "<li><a href='/jquery-git2.js'>jQuery 2.x git build</a> - <a href='/jquery-git2.min.js'>minified</a></li>";
-	mainIndex += "<li><a href='/jquery-git1.js'>jQuery 1.x git build</a> - <a href='/jquery-git1.min.js'>minified</a></li>";
-	mainIndex += "<li><a href='/jquery-migrate-git.js'>jQuery Migrate git build</a> - <a href='/jquery-migrate-git.min.js'>minified</a></li>";
-	mainIndex += "</ul>";
+	gitListing = "<h3>jQuery - Live git versions</h3>";
+	gitListing += "<p>UNSTABLE, NOT FOR PRODUCTION</p>";
+	gitListing += "<ul>";
+	gitListing += "<li><a href='/jquery-git2.js'>jQuery 2.x git build</a> - <a href='/jquery-git2.min.js'>minified</a></li>";
+	gitListing += "<li><a href='/jquery-git1.js'>jQuery 1.x git build</a> - <a href='/jquery-git1.min.js'>minified</a></li>";
+	gitListing += "<li><a href='/jquery-migrate-git.js'>jQuery Migrate git build</a> - <a href='/jquery-migrate-git.min.js'>minified</a></li>";
+	gitListing += "</ul>";
+
+	mainIndex += gitListing;
 
 	latestStable = getLatestStable( jQueryMigrate );
 	mainIndex += "<h3>jQuery Migrate - Latest Version</h3>";
@@ -170,13 +172,7 @@ grunt.registerTask( "build-index", function() {
 
 	// Build /jquery/
 	projectIndex = "<script>{\"title\":\"jQuery Core - All Versions\"}</script>\n";
-	projectIndex += "<h3>jQuery - Live git versions</h3>";
-	projectIndex += "<p>UNSTABLE, NOT FOR PRODUCTION</p>";
-	projectIndex += "<ul>";
-	projectIndex += "<li><a href='/jquery-git2.js'>jQuery 2.x git build</a> - <a href='/jquery-git2.min.js'>min</a></li>";
-	projectIndex += "<li><a href='/jquery-git1.js'>jQuery 1.x git build</a> - <a href='/jquery-git1.min.js'>min</a></li>";
-	projectIndex += "<li><a href='/jquery-migrate-git.js'>jQuery Migrate git build</a> - <a href='/jquery-migrate-git.min.js'>min</a></li>";
-	projectIndex += "</ul>";
+	projectIndex += gitListing;
 
 	projectIndex += "<h2>jQuery Core - All 2.x Versions</h2>";
 	projectIndex += "<ul>";
