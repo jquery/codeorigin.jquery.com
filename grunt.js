@@ -194,24 +194,18 @@ grunt.registerTask( "build-index", function() {
 			modes = [ "svg-names", "plus-names" ];
 
 		function addTypes( release ) {
-			var minFilename = release.filename.replace( ".js", ".min.js" );
+			release.minified = release.filename.replace( ".js", ".min.js" );
 
-			if ( files.indexOf( "cdn/color/" + minFilename ) !== -1 ) {
-				release.minified = minFilename;
-			}
-
-			modes.forEach( function( mode ) {
+			modes.forEach(function( mode ) {
 				var filename = release.filename.replace( "jquery.color", "jquery.color." + mode ),
 					minFilename = filename.replace( ".js", ".min.js" );
 
 				if ( files.indexOf( "cdn/color/" + filename ) !== -1 ) {
 					release[ camelCase( mode ) ] = {
 						filename: filename,
-						version: release.version
+						version: release.version,
+						minified: minFilename
 					};
-				}
-				if ( files.indexOf( "cdn/color/" + minFilename ) !== -1 ) {
-					release[ camelCase( mode ) ].minified = minFilename;
 				}
 			});
 
