@@ -51,101 +51,161 @@ grunt.registerTask( "build-wordpress", "check-modules clean lint build" );
 
 grunt.registerTask( "build-index", function() {
 	var rversion = /^(\d+)\.(\d+)(?:\.(\d+))?-?(.*)$/;
-	function getVersion( version ) {
+	function normalizeVersion( version ) {
 		var match = rversion.exec( version );
 
 		return match[ 1 ] + "." + match[ 2 ] + "." + ( match[ 3 ] || 0 ) +
 			( match[ 4 ] ? "-" + match[ 4 ] : "" );
 	}
 
-	function organize( files ) {
-		var result = {};
-
-		files.forEach(function( file ) {
-			var version = result[ file.version ] || ( result[ file.version ] = {} );
-			version[ file.typePretty ] = file;
+	function getLatestStable( releases ) {
+		return _.find( releases, function( release ) {
+			return release.version.indexOf( "-" ) === -1;
 		});
-
-		return result;
 	}
 
-	var prettyTypes = {
-		"": "uncompressed",
-		"min": "minified",
-		"pack": "packed"
-	};
-	function parseFiles( files, regex ) {
+	function parseReleases( files, regex ) {
 		return files
 			.map(function( filename ) {
 				var type,
 					matches = regex.exec( filename );
 
-				if ( !matches ) {
+				// matches[ 3 ] = "min" or "pack" or ""
+				if ( !matches || matches[ 3 ] ) {
 					return null;
 				}
 
-				type = matches[ 3 ] || "";
 				return {
 					filename: matches[ 0 ],
-					version: getVersion( matches[ 2 ] ),
-					type: type,
-					typePretty: prettyTypes[ type ]
+					version: normalizeVersion( matches[ 2 ] )
 				};
 			})
 			// Remove null values from filtering
 			.filter( _.identity )
 			.sort(function( a, b ) {
-				return semver.compare( b.version, a.version ) || ( a.type < b.type ? -1 : 1 );
+				return semver.compare( b.version, a.version );
 			});
 	}
 
-	function getLatestStable( organized ) {
-		return _.find( Object.keys( organized ), function( version ) {
-			return version.indexOf( "-" ) === -1;
+	function getCoreData() {
+		var files = grunt.file.expandFiles( "cdn/*.js" ),
+			coreReleases = parseReleases( files,
+				/(jquery-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min|pack))?\.js)/ ),
+			jquery2Releases = coreReleases.filter(function( match ) {
+				return semver.satisfies( match.version, "2.x" );
+			}),
+			jquery1Releases = coreReleases.filter(function( match ) {
+				return semver.satisfies( match.version, "1.x" );
+			}),
+			migrateReleases = parseReleases( files,
+				/(jquery-migrate-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min))?\.js)/ );
+
+		function addTypes( release ) {
+			var minFilename = release.filename.replace( ".js", ".min.js" ),
+				packFilename = release.filename.replace( ".js", ".pack.js" );
+
+			if ( files.indexOf( "cdn/" + minFilename ) !== -1 ) {
+				release.minified = minFilename;
+			}
+			if ( files.indexOf( "cdn/" + packFilename ) !== -1 ) {
+				release.packed = packFilename;
+			}
+		}
+
+		jquery1Releases.forEach( addTypes );
+		jquery2Releases.forEach( addTypes );
+		migrateReleases.forEach( addTypes );
+
+		return {
+			jquery2: {
+				latestStable: getLatestStable( jquery2Releases ),
+				all: jquery2Releases
+			},
+			jquery1: {
+				latestStable: getLatestStable( jquery1Releases ),
+				all: jquery1Releases
+			},
+			migrate: {
+				latestStable: getLatestStable( migrateReleases ),
+				all: migrateReleases
+			}
+		};
+	}
+
+	function getUiData() {
+		var majorReleases = {},
+			uiReleases = grunt.file.expandDirs( "cdn/ui/*" )
+			.map(function( dir ) {
+				var version,
+					filename = dir.substring( 4 ) + "jquery-ui.js";
+
+				version = dir.substring( 7 );
+				version = version.substring( 0, version.length - 1 );
+
+				return {
+					filename: filename,
+					version: version,
+					minified: filename.replace( ".js", ".min.js" ),
+					themes: grunt.file.expandDirs( dir + "themes/*" ).map(function( themeDir ) {
+						var theme = themeDir.substring( dir.length + 7 );
+						return theme.substring( 0, theme.length - 1 );
+					})
+				};
+			})
+			.sort(function( a, b ) {
+				return semver.compare( b.version, a.version );
+			});
+
+		// Group by major release
+		uiReleases.forEach(function( release ) {
+			var major = /^\d+\.\d+/.exec( release.version )[ 0 ];
+			if ( !majorReleases[ major ] ) {
+				majorReleases[ major ] = [];
+			}
+
+			majorReleases[ major ].push( release );
+		});
+
+		// Convert to array of major release groups
+		return Object.keys( majorReleases ).map(function( major ) {
+			var all = majorReleases[ major ],
+				latestStable = getLatestStable( all );
+
+			return {
+				major: major,
+				latestStable: latestStable,
+				all: all.filter(function( release ) {
+					return release !== latestStable;
+				})
+			};
 		});
 	}
 
-	var allFiles = grunt.file.expandFiles( "cdn/**.js" ),
-		jQueryCoreFiles = parseFiles( allFiles,
-			/(jquery-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min|pack))?\.js)/ ),
-		jQueryMigrateFiles = parseFiles( allFiles,
-			/(jquery-migrate-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.min)?\.js)/ ),
-		jQuery2 = organize( jQueryCoreFiles.filter(function( match ) {
-			return semver.satisfies( match.version, "2.x" );
-		})),
-		jQuery1 = organize( jQueryCoreFiles.filter(function( match ) {
-			return semver.satisfies( match.version, "1.x" );
-		})),
-		jQueryMigrate = organize( jQueryMigrateFiles ),
-		data = {
-			jquery2: {
-				latestStable: jQuery2[ getLatestStable( jQuery2 ) ],
-				all: jQuery2
-			},
-			jquery1: {
-				latestStable: jQuery1[ getLatestStable( jQuery1 ) ],
-				all: jQuery1
-			},
-			migrate: {
-				latestStable: jQueryMigrate[ getLatestStable( jQueryMigrate ) ],
-				all: jQueryMigrate
-			}
-		};
+	Handlebars.registerHelper( "release", function( prefix, release ) {
+		var html = prefix + " " + release.version + " - " +
+			"<a href='/" + release.filename + "'>uncompressed</a>";
 
-	Handlebars.registerHelper( "listItem", function( prefix, files ) {
-		var li = "<li>";
-		Object.keys( files ).forEach(function( type, index ) {
-			if ( !index ) {
-				li += prefix + " " + files[ type ].version + " - ";
-			} else {
-				li += " or ";
-			}
+		if ( release.minified ) {
+			html += ", <a href='/" + release.minified + "'>minified</a>";
+		}
+		if ( release.packed ) {
+			html += ", <a href='/" + release.packed + "'>packed</a>";
+		}
 
-			li += "<a href='/" + files[ type ].filename + "'>" + type + "</a> ";
-		});
-		li += "</li>";
+		return new Handlebars.SafeString( html );
+	});
 
-		return new Handlebars.SafeString( li );
+	Handlebars.registerHelper( "uiTheme", function( release ) {
+		var url;
+		// TODO: link to minified theme if available
+		if ( release.themes.indexOf( "smoothness" ) !== -1) {
+			url = "smoothness/jquery-ui.css";
+		} else {
+			url = "base/jquery-ui.css";
+		}
+
+		return new Handlebars.SafeString(
+			"<a href='/ui/" + release.version + "/themes/" + url + "'>theme</a>" );
 	});
 
 	Handlebars.registerHelper( "include", (function() {
@@ -156,15 +216,21 @@ grunt.registerTask( "build-index", function() {
 					grunt.file.read( "templates/" + template + ".hbs" ) );
 			}
 
-			return new Handlebars.SafeString( templates[ template ]() );
+			return new Handlebars.SafeString( templates[ template ]( this ) );
 		};
 	})());
+
+	var data = getCoreData();
+	data.ui = getUiData();
 
 	grunt.file.write( "dist/wordpress/posts/page/index.html",
 		Handlebars.compile( grunt.file.read( "templates/index.hbs" ) )( data ) );
 
 	grunt.file.write( "dist/wordpress/posts/page/jquery.html",
 		Handlebars.compile( grunt.file.read( "templates/jquery.hbs" ) )( data ) );
+
+	grunt.file.write( "dist/wordpress/posts/page/ui.html",
+		Handlebars.compile( grunt.file.read( "templates/ui.hbs" ) )( data ) );
 });
 
 };
