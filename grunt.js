@@ -58,6 +58,12 @@ grunt.registerTask( "build-index", function() {
 			( match[ 4 ] ? "-" + match[ 4 ] : "" );
 	}
 
+	function camelCase( str ) {
+		return str.replace( /-([a-z])/g, function( $0, $1 ) {
+			return $1.toUpperCase();
+		});
+	}
+
 	function getLatestStable( releases ) {
 		return _.find( releases, function( release ) {
 			return release.version.indexOf( "-" ) === -1;
@@ -181,6 +187,44 @@ grunt.registerTask( "build-index", function() {
 		});
 	}
 
+	function getColorData() {
+		var files = grunt.file.expandFiles( "cdn/color/*.js" ),
+			releases = parseReleases( files,
+				/(jquery.color-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min))?\.js)/ ),
+			modes = [ "svg-names", "plus-names" ];
+
+		function addTypes( release ) {
+			var minFilename = release.filename.replace( ".js", ".min.js" );
+
+			if ( files.indexOf( "cdn/color/" + minFilename ) !== -1 ) {
+				release.minified = minFilename;
+			}
+
+			modes.forEach( function( mode ) {
+				var filename = release.filename.replace( "jquery.color", "jquery.color." + mode ),
+					minFilename = filename.replace( ".js", ".min.js" );
+
+				if ( files.indexOf( "cdn/color/" + filename ) !== -1 ) {
+					release[ camelCase( mode ) ] = {
+						filename: filename,
+						version: release.version
+					};
+				}
+				if ( files.indexOf( "cdn/color/" + minFilename ) !== -1 ) {
+					release[ camelCase( mode ) ].minified = minFilename;
+				}
+			});
+
+		}
+
+		releases.forEach( addTypes );
+
+		return {
+			latestStable: getLatestStable( releases ),
+			all: releases
+		};
+	}
+
 	Handlebars.registerHelper( "release", function( prefix, release ) {
 		var html = prefix + " " + release.version + " - " +
 			"<a href='/" + release.filename + "'>uncompressed</a>";
@@ -221,7 +265,8 @@ grunt.registerTask( "build-index", function() {
 	})());
 
 	var data = getCoreData();
-	data.ui = getUiData();
+	data.ui = getUiData(),
+	data.color = getColorData();
 
 	grunt.file.write( "dist/wordpress/posts/page/index.html",
 		Handlebars.compile( grunt.file.read( "templates/index.hbs" ) )( data ) );
@@ -231,6 +276,9 @@ grunt.registerTask( "build-index", function() {
 
 	grunt.file.write( "dist/wordpress/posts/page/ui.html",
 		Handlebars.compile( grunt.file.read( "templates/ui.hbs" ) )( data ) );
+
+	grunt.file.write( "dist/wordpress/posts/page/color.html",
+		Handlebars.compile( grunt.file.read( "templates/color.hbs" ) )( data ) );
 });
 
 };

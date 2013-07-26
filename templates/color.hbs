@@ -1,0 +1,16 @@
+<script>{
+	"title": "jQuery Color - All Versions"
+}</script>
+
+{{#each color.all}}
+	<h2>{{version}}</h2>
+	<ul>
+	<li>{{release "jQuery Color" this}}</li>
+	{{#if svgNames}}
+		<li>{{release "jQuery Color Extra Names" svgNames}}</li>
+	{{/if}}
+	{{#if plusNames}}
+		<li>{{release "jQuery Color With Names (last two together)" plusNames}}</li>
+	{{/if}}
+	</ul>
+{{/each}}
