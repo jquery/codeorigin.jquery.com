@@ -4,7 +4,7 @@
 
 <h2>jQuery Core</h2>
 <p>
-	Showing the latest release in each major branch.
+	Showing the latest stable release in each major branch.
 	<a href="/jquery/">See all versions of jQuery Core</a>.
 </p>
 
@@ -63,7 +63,7 @@
 
 <h2>jQuery Color</h2>
 <p>
-	Showing the latest release for jQuery Color.
+	Showing the latest stable release for jQuery Color.
 	<a href="/color/">See all versions of jQuery Color</a>.
 </p>
 <h3>Latest Stable {{color.latestStable.version}}</h3>
@@ -76,3 +76,23 @@
 		<li>{{release "jQuery Color With Names (last two together)" color.latestStable.plusNames}}</li>
 	{{/if}}
 </ul>
+
+{{#with mobile.latestStable}}
+<h2>jQuery Mobile</h2>
+<p>
+	Showing the latest stable release for jQuery Mobile.
+	<a href="/mobile/">See all versions of jQuery Mobile</a>.
+</p>
+<h3>Latest Stable {{version}}</h3>
+<ul>
+	<li>
+		jQuery Mobile {{version}} -
+		<a href="/mobile/{{version}}/{{filename}}">uncompressed</a>,
+		<a href="/mobile/{{version}}/{{minified}}">minfied</a>,
+		<a href="/mobile/{{version}}/{{minifiedCss}}">theme</a>
+		{{#if minifiedStructure}}
+			(<a href="/mobile/{{version}}/{{minifiedStructure}}">structure only</a>)
+		{{/if}}
+	</li>
+</ul>
+{{/with}}

@@ -208,7 +208,53 @@ grunt.registerTask( "build-index", function() {
 					};
 				}
 			});
+		}
 
+		releases.forEach( addTypes );
+
+		return {
+			latestStable: getLatestStable( releases ),
+			all: releases
+		};
+	}
+
+	function getMobileData() {
+		var files = grunt.file.expandFiles( "cdn/mobile/*/*.css" ),
+			releases = files.map(function( file ) {
+				var version = /cdn\/mobile\/([^\/]+)/.exec( file )[ 1 ],
+					filename = "jquery.mobile-" + version + ".js",
+					mainCssFile = "cdn/mobile/" + version + "/" + filename.replace( ".js", ".css" );
+
+				if ( file !== mainCssFile ) {
+					return null;
+				}
+
+				return {
+					filename: filename,
+					version: normalizeVersion( version )
+				};
+			})
+			// Remove null values from filtering
+			.filter( _.identity )
+			.sort(function( a, b ) {
+				return semver.compare( b.version, a.version );
+			});
+
+		function addTypes( release ) {
+			var minFilename = release.filename.replace( ".js", ".min.js" ),
+				css = release.filename.replace( ".js", ".css" ),
+				minCss = css.replace( ".css", ".min.css" ),
+				structure = css.replace( "jquery.mobile", "jquery.mobile.structure" ),
+				minStructure = structure.replace( ".css", ".min.css" );
+
+			release.minified = minFilename;
+			release.css = css;
+			release.minifiedCss = minCss;
+
+			if ( files.indexOf( "cdn/mobile/" + release.version + "/" + structure ) !== -1 ) {
+				release.structure = structure;
+				release.minifiedStructure = minStructure;
+			}
 		}
 
 		releases.forEach( addTypes );
@@ -261,6 +307,7 @@ grunt.registerTask( "build-index", function() {
 	var data = getCoreData();
 	data.ui = getUiData(),
 	data.color = getColorData();
+	data.mobile = getMobileData();
 
 	grunt.file.write( "dist/wordpress/posts/page/index.html",
 		Handlebars.compile( grunt.file.read( "templates/index.hbs" ) )( data ) );
@@ -273,6 +320,10 @@ grunt.registerTask( "build-index", function() {
 
 	grunt.file.write( "dist/wordpress/posts/page/color.html",
 		Handlebars.compile( grunt.file.read( "templates/color.hbs" ) )( data ) );
+
+	grunt.file.write( "dist/wordpress/posts/page/mobile.html",
+		Handlebars.compile( grunt.file.read( "templates/mobile.hbs" ) )( data ) );
+
 });
 
 };
