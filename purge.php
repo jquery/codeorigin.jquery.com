@@ -46,7 +46,7 @@ if ( !$parts ) {
   exit;
 }
 
-$files = $parts[0];
+$file = $parts[0];
 
 header( "Content-Type: text/plain" );
 echo "Attempting to purge: ".$zone_id.": ".$file;
