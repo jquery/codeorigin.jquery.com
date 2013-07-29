@@ -2,7 +2,8 @@
 //requires https://github.com/netdna/netdnarws-php
 require_once('netdnarws-php/NetDNA.php');
 
-$config = json_decode(readfile('./config.json'), true)["cdn"];
+$config = json_decode(readfile('./config.json'), true);
+$config = $config["cdn"];
 
 //place your alias, key, secret into this constructor
 $api = new NetDNA($config["alias"], $config["consumer_key"], $config["consumer_secret"]);
@@ -45,7 +46,7 @@ if ( !$parts ) {
   exit;
 }
 
-$files = $parts[0]
+$files = $parts[0];
 
 header( "Content-Type: text/plain" );
 echo "Attempting to purge: ".$zone_id.": ".$file;
