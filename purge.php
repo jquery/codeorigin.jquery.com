@@ -49,5 +49,5 @@ if ( !$parts ) {
 $file = $parts[0];
 
 header( "Content-Type: text/plain" );
-echo "Attempting to purge: ".$zone_id.": ".$file;
+echo "Attempting to purge: ".$zone_id.": ".$file."\n";
 purgeCacheFileFromCDN( $zone_id, $file );
