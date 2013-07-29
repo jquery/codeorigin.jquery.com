@@ -3,9 +3,7 @@
 	"username": "admin",
 	"password": "secret",
 	"cdn": {
-		"alias": "jquery",
 		"consumer_key": "key",
-		"consumer_secret": "secret",
-		"zone_id": 1
+		"consumer_secret": "secret"
 	}
 }
