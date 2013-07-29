@@ -1,5 +1,11 @@
 {
 	"url": "local.codeorigin.jquery.com",
 	"username": "admin",
-	"password": "secret"
+	"password": "secret",
+	"cdn": {
+		"alias": "jquery",
+		"consumer_key": "key",
+		"consumer_secret": "secret",
+		"zone_id": 1
+	}
 }

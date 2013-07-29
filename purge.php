@@ -1,47 +1,42 @@
 <?php
+//requires https://github.com/netdna/netdnarws-php
+require_once('netdnarws-php/NetDNA.php');
 
-function purgeCacheFileFromCDN($urlToPurge, $mediaType) {
+$config = json_decode(readfile('./config.json'), true)["cdn"];
 
-  $request_params = (object) array(
-    'MediaPath' => $urlToPurge,
-    'MediaType' => $mediaType, // MediaType 8=small 3=large
-  );
-  $data = json_encode( $request_params );
+//place your alias, key, secret into this constructor
+$api = new NetDNA($config["alias"], $config["consumer_key"], $config["consumer_secret"]);
 
-  //## setup the connection and call.
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, 'https://api.edgecast.com/v2/mcc/customers/1257/edge/purge');
-  curl_setopt($ch, CURLOPT_PORT, 443);
-  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-  curl_setopt($ch, CURLOPT_HEADER, 0);
-  curl_setopt($ch, CURLINFO_HEADER_OUT, 1);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  curl_setopt($ch, CURLOPT_FORBID_REUSE, 1);
-  curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
-  curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-  curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-  curl_setopt($ch, CURLOPT_TIMEOUT, 45);
-  curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-    'Authorization: tok:d1eceb00-7b0b-499f-a9e2-c79379502e88',
-    'Content-Type: application/json',
-    'Accept: application/json',
-    'Content-length: '.strlen($data)
-  ));
-  $head = curl_exec($ch);
-  $httpCode = curl_getinfo($ch);
-  curl_close($ch);
+function purgeCacheFileFromCDN($id, $files = null) {
 
-  if ($httpCode['http_code'] != 200) {
-    echo 'Error reported: '.print_r( array( $head, $httpCode ), 1 );
-  } else {
-    echo "Done\n";
-  }
+    global $api;
+    //3 options for purge
+    $result = null;
+    
+    if ($files == null){
+        $result = $api->delete('/zones/pull.json/'.$id.'/cache');
+    } else if (!is_array($files)){
+        //Purge single file
+        $params = array('file'=>$files);
+        $result = $api->delete('/zones/pull.json/'.$id.'/cache',$params);
+    } else if (is_array($files)){
+        //Purge multiple files
+        $params = array();
+        foreach ($files as $k=>$v) $params[$k] = $v;
+        $result = $api->delete('/zones/pull.json/'.$id.'/cache',$params);
+    }
+
+    $result = json_decode($result,true);
+    if ($result['code'] != 200) {
+        echo 'Error reported: '.print_r( $result, 1 );
+    } else {
+        echo "Done\n";
+    }
+
 }
 
-// set by nginx
-$domain = strtolower( $_SERVER["CDN_HOSTNAME"] );
-
-$type = $domain == "content.jquery.com" ? 3 : 8;
+//set zone id that you want to purge
+$zone_id = $config["zone_id"];
 
 $parts = preg_split( "/\?reload=?/", $_SERVER["REQUEST_URI"] );
 if ( !$parts ) {
@@ -50,9 +45,8 @@ if ( !$parts ) {
   exit;
 }
 
-$url = "http://$domain" . $parts[ 0 ];
+$files = $parts[0]
 
 header( "Content-Type: text/plain" );
-
-echo "Attempting to purge: $url ";
-purgeCacheFileFromCDN( $url, $type );
+echo "Attempting to purge: ".$zone_id.": ".$file;
+purgeCacheFileFromCDN( $zone_id, $file );
