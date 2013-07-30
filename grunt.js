@@ -187,37 +187,6 @@ grunt.registerTask( "build-index", function() {
 		});
 	}
 
-	function getColorData() {
-		var files = grunt.file.expandFiles( "cdn/color/*.js" ),
-			releases = parseReleases( files,
-				/(color\/jquery.color-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min))?\.js)/ ),
-			modes = [ "svg-names", "plus-names" ];
-
-		function addTypes( release ) {
-			release.minified = release.filename.replace( ".js", ".min.js" );
-
-			modes.forEach(function( mode ) {
-				var filename = release.filename.replace( "jquery.color", "jquery.color." + mode ),
-					minFilename = filename.replace( ".js", ".min.js" );
-
-				if ( files.indexOf( "cdn/" + filename ) !== -1 ) {
-					release[ camelCase( mode ) ] = {
-						filename: filename,
-						version: release.version,
-						minified: minFilename
-					};
-				}
-			});
-		}
-
-		releases.forEach( addTypes );
-
-		return {
-			latestStable: getLatestStable( releases ),
-			all: releases
-		};
-	}
-
 	function getMobileData() {
 		var files = grunt.file.expandFiles( "cdn/mobile/*/*.css" ),
 			releases = files.map(function( file ) {
@@ -255,6 +224,37 @@ grunt.registerTask( "build-index", function() {
 				release.structure = structure;
 				release.minifiedStructure = minStructure;
 			}
+		}
+
+		releases.forEach( addTypes );
+
+		return {
+			latestStable: getLatestStable( releases ),
+			all: releases
+		};
+	}
+
+	function getColorData() {
+		var files = grunt.file.expandFiles( "cdn/color/*.js" ),
+			releases = parseReleases( files,
+				/(color\/jquery.color-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min))?\.js)/ ),
+			modes = [ "svg-names", "plus-names" ];
+
+		function addTypes( release ) {
+			release.minified = release.filename.replace( ".js", ".min.js" );
+
+			modes.forEach(function( mode ) {
+				var filename = release.filename.replace( "jquery.color", "jquery.color." + mode ),
+					minFilename = filename.replace( ".js", ".min.js" );
+
+				if ( files.indexOf( "cdn/" + filename ) !== -1 ) {
+					release[ camelCase( mode ) ] = {
+						filename: filename,
+						version: release.version,
+						minified: minFilename
+					};
+				}
+			});
 		}
 
 		releases.forEach( addTypes );
@@ -321,8 +321,8 @@ grunt.registerTask( "build-index", function() {
 
 	var data = getCoreData();
 	data.ui = getUiData(),
-	data.color = getColorData();
 	data.mobile = getMobileData();
+	data.color = getColorData();
 	data.qunit = getQunitData();
 
 	grunt.file.write( "dist/wordpress/posts/page/index.html",
@@ -334,11 +334,11 @@ grunt.registerTask( "build-index", function() {
 	grunt.file.write( "dist/wordpress/posts/page/ui.html",
 		Handlebars.compile( grunt.file.read( "templates/ui.hbs" ) )( data ) );
 
-	grunt.file.write( "dist/wordpress/posts/page/color.html",
-		Handlebars.compile( grunt.file.read( "templates/color.hbs" ) )( data ) );
-
 	grunt.file.write( "dist/wordpress/posts/page/mobile.html",
 		Handlebars.compile( grunt.file.read( "templates/mobile.hbs" ) )( data ) );
+
+	grunt.file.write( "dist/wordpress/posts/page/color.html",
+		Handlebars.compile( grunt.file.read( "templates/color.hbs" ) )( data ) );
 
 	grunt.file.write( "dist/wordpress/posts/page/qunit.html",
 		Handlebars.compile( grunt.file.read( "templates/qunit.hbs" ) )( data ) );
