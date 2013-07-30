@@ -2,6 +2,8 @@
 	"title": "jQuery UI - All Versions"
 }</script>
 
+{{include "ui-git"}}
+
 {{#each ui}}
 	<h2>jQuery UI {{major}}</h2>
 	{{release "jQuery UI" latestStable}}
@@ -11,10 +13,12 @@
 	{{/each}}
 	{{#if all.length}}
 		<h3>Previous Releases</h3>
+		<ul>
 		{{#each all}}
 			<li>
 				{{release "jQuery UI" this}}, {{uiTheme this}}
 			</li>
 		{{/each}}
+		</ul>
 	{{/if}}
 {{/each}}
