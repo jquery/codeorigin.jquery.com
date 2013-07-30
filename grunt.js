@@ -190,7 +190,7 @@ grunt.registerTask( "build-index", function() {
 	function getColorData() {
 		var files = grunt.file.expandFiles( "cdn/color/*.js" ),
 			releases = parseReleases( files,
-				/(jquery.color-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min))?\.js)/ ),
+				/(color\/jquery.color-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min))?\.js)/ ),
 			modes = [ "svg-names", "plus-names" ];
 
 		function addTypes( release ) {
@@ -200,7 +200,7 @@ grunt.registerTask( "build-index", function() {
 				var filename = release.filename.replace( "jquery.color", "jquery.color." + mode ),
 					minFilename = filename.replace( ".js", ".min.js" );
 
-				if ( files.indexOf( "cdn/color/" + filename ) !== -1 ) {
+				if ( files.indexOf( "cdn/" + filename ) !== -1 ) {
 					release[ camelCase( mode ) ] = {
 						filename: filename,
 						version: release.version,
@@ -323,7 +323,6 @@ grunt.registerTask( "build-index", function() {
 
 	grunt.file.write( "dist/wordpress/posts/page/mobile.html",
 		Handlebars.compile( grunt.file.read( "templates/mobile.hbs" ) )( data ) );
-
 });
 
 };
