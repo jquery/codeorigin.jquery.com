@@ -36,31 +36,11 @@
 </p>
 
 {{#with ui.[0]}}
-<h3>jQuery UI {{major}}</h3>
-	{{#with latestStable}}
-	<ul>
-		<li>{{release "jQuery UI" this}}</li>
-		<li>Themes:
-			{{#each themes}}
-				<a href="/ui/{{../version}}/themes/{{this}}/jquery-ui.css">{{this}}</a>
-			{{/each}}
-		</li>
-	</ul>
-	{{/with}}
+	{{include "ui-latest"}}
 {{/with}}
 
 {{#with ui.[1]}}
-<h3>jQuery UI {{major}}</h3>
-	{{#with latestStable}}
-	<ul>
-		<li>{{release "jQuery UI" this}}</li>
-		<li>Themes:
-			{{#each themes}}
-				<a href="/ui/{{../version}}/themes/{{this}}/jquery-ui.css">{{this}}</a>
-			{{/each}}
-		</li>
-	</ul>
-	{{/with}}
+	{{include "ui-latest"}}
 {{/with}}
 
 {{#with color.latestStable}}
@@ -69,15 +49,7 @@
 	Showing the latest stable release for jQuery Color.
 	<a href="/color/">See all versions of jQuery Color</a>.
 </p>
-<ul>
-	<li>{{release "jQuery Color" this}}</li>
-	{{#if svgNames}}
-		<li>{{release "jQuery Color SVG Color Names" svgNames}}</li>
-	{{/if}}
-	{{#if plusNames}}
-		<li>{{release "jQuery Color With Names (last two together)" plusNames}}</li>
-	{{/if}}
-</ul>
+{{include "color-release"}}
 {{/with}}
 
 {{#with mobile.latestStable}}
@@ -87,15 +59,7 @@
 	<a href="/mobile/">See all versions of jQuery Mobile</a>.
 </p>
 <ul>
-	<li>
-		jQuery Mobile {{version}} -
-		<a href="/mobile/{{version}}/{{filename}}">uncompressed</a>,
-		<a href="/mobile/{{version}}/{{minified}}">minfied</a>,
-		<a href="/mobile/{{version}}/{{minifiedCss}}">theme</a>
-		{{#if minifiedStructure}}
-			(<a href="/mobile/{{version}}/{{minifiedStructure}}">structure only</a>)
-		{{/if}}
-	</li>
+	{{include "mobile-release"}}
 </ul>
 {{/with}}
 
@@ -107,10 +71,6 @@
 
 {{#with qunit.latestStable}}
 <ul>
-	<li>
-		QUnit {{version}} -
-		<a href="/{{filename}}">uncompressed</a>,
-		<a href="/{{theme}}">theme</a>
-	</li>
+	{{include "qunit-release"}}
 </ul>
 {{/with}}

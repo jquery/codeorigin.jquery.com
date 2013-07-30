@@ -3,9 +3,5 @@
 }</script>
 
 {{#each qunit.all}}
-<li>
-	QUnit {{version}} -
-	<a href="/{{filename}}">uncompressed</a>,
-	<a href="/{{theme}}">theme</a>
-</li>
+	{{include "qunit-release"}}
 {{/each}}
