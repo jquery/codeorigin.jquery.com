@@ -222,8 +222,8 @@ grunt.registerTask( "build-index", function() {
 		var files = grunt.file.expandFiles( "cdn/mobile/*/*.css" ),
 			releases = files.map(function( file ) {
 				var version = /cdn\/mobile\/([^\/]+)/.exec( file )[ 1 ],
-					filename = "jquery.mobile-" + version + ".js",
-					mainCssFile = "cdn/mobile/" + version + "/" + filename.replace( ".js", ".css" );
+					filename = "mobile/" + version + "/jquery.mobile-" + version + ".js",
+					mainCssFile = "cdn/" + filename.replace( ".js", ".css" );
 
 				if ( file !== mainCssFile ) {
 					return null;
@@ -251,7 +251,7 @@ grunt.registerTask( "build-index", function() {
 			release.css = css;
 			release.minifiedCss = minCss;
 
-			if ( files.indexOf( "cdn/mobile/" + release.version + "/" + structure ) !== -1 ) {
+			if ( files.indexOf( "cdn/" + structure ) !== -1 ) {
 				release.structure = structure;
 				release.minifiedStructure = minStructure;
 			}
