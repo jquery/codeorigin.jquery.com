@@ -3,7 +3,7 @@ require_once( 'netdnarws-php/NetDNA.php' );
 
 $config = json_decode( file_get_contents( './config.json' ), true );
 $config = $config[ 'cdn' ];
-$zone_id = 1;
+$zone_id = $config[ 'zone_id' ];
 
 $parts = preg_split( '/\?reload=?/', $_SERVER[ 'REQUEST_URI' ] );
 if ( !$parts ) {
