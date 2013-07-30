@@ -1,5 +1,5 @@
 <script>{
-	"title": "jQuery CDN - Latest Versions"
+	"title": "jQuery CDN - Latest Stable Versions"
 }</script>
 
 <h2>jQuery Core</h2>
@@ -8,74 +8,77 @@
 	<a href="/jquery/">See all versions of jQuery Core</a>.
 </p>
 
-{{#with jquery2}}
-<h3>jQuery 2.x - Latest Version (IE &lt;9 not supported)</h3>
+{{#with jquery2.latestStable}}
+<h3>jQuery 2.x (IE &lt;9 not supported)</h3>
 <ul>
-	<li>{{release "jQuery Core" latestStable}}</li>
+	<li>{{release "jQuery Core" this}}</li>
 </ul>
 {{/with}}
 
-{{#with jquery1}}
-<h3>jQuery 1.x - Latest Version</h3>
+{{#with jquery1.latestStable}}
+<h3>jQuery 1.x</h3>
 <ul>
-	<li>{{release "jQuery Core" latestStable}}</li>
+	<li>{{release "jQuery Core" this}}</li>
 </ul>
 {{/with}}
 
-{{include "jquery-git"}}
-
-{{#with migrate}}
-<h3>jQuery Migrate - Latest Version</h3>
+{{#with migrate.latestStable}}
+<h3>jQuery Migrate</h3>
 <ul>
-	<li>{{release "jQuery Migrate" latestStable}}</li>
+	<li>{{release "jQuery Migrate" this}}</li>
 </ul>
 {{/with}}
 
 <h2>jQuery UI</h2>
 <p>
-	Showing the latest release for the stable and legacy release families.
+	Showing the latest stable release for the current and legacy release families.
 	<a href="/ui/">See all versions of jQuery UI</a>.
 </p>
 
 {{#with ui.[0]}}
-<h3>jQuery UI {{major}} - Latest Version</h3>
-<ul>
-	<li>{{release "jQuery UI" latestStable}}</li>
-	<li>Themes:
-		{{#each latestStable.themes}}
-			<a href="/ui/{{../latestStable/version}}/themes/{{this}}/jquery-ui.css">{{this}}</a>
-		{{/each}}
-	</li>
-</ul>
+<h3>jQuery UI {{major}}</h3>
+	{{#with latestStable}}
+	<ul>
+		<li>{{release "jQuery UI" this}}</li>
+		<li>Themes:
+			{{#each themes}}
+				<a href="/ui/{{../version}}/themes/{{this}}/jquery-ui.css">{{this}}</a>
+			{{/each}}
+		</li>
+	</ul>
+	{{/with}}
 {{/with}}
 
 {{#with ui.[1]}}
-<h3>jQuery UI {{major}} - Latest Version</h3>
-<ul>
-	<li>{{release "jQuery UI" latestStable}}</li>
-	<li>Themes:
-		{{#each latestStable.themes}}
-			<a href="/ui/{{../latestStable/version}}/themes/{{this}}/jquery-ui.css">{{this}}</a>
-		{{/each}}
-	</li>
-</ul>
+<h3>jQuery UI {{major}}</h3>
+	{{#with latestStable}}
+	<ul>
+		<li>{{release "jQuery UI" this}}</li>
+		<li>Themes:
+			{{#each themes}}
+				<a href="/ui/{{../version}}/themes/{{this}}/jquery-ui.css">{{this}}</a>
+			{{/each}}
+		</li>
+	</ul>
+	{{/with}}
 {{/with}}
 
+{{#with color.latestStable}}
 <h2>jQuery Color</h2>
 <p>
 	Showing the latest stable release for jQuery Color.
 	<a href="/color/">See all versions of jQuery Color</a>.
 </p>
-<h3>Latest Stable {{color.latestStable.version}}</h3>
 <ul>
-	<li>{{release "jQuery Color" color.latestStable}}</li>
-	{{#if color.latestStable.svgNames}}
-		<li>{{release "jQuery Color SVG Color Names" color.latestStable.svgNames}}</li>
+	<li>{{release "jQuery Color" this}}</li>
+	{{#if svgNames}}
+		<li>{{release "jQuery Color SVG Color Names" svgNames}}</li>
 	{{/if}}
-	{{#if color.latestStable.plusNames}}
-		<li>{{release "jQuery Color With Names (last two together)" color.latestStable.plusNames}}</li>
+	{{#if plusNames}}
+		<li>{{release "jQuery Color With Names (last two together)" plusNames}}</li>
 	{{/if}}
 </ul>
+{{/with}}
 
 {{#with mobile.latestStable}}
 <h2>jQuery Mobile</h2>
@@ -83,7 +86,6 @@
 	Showing the latest stable release for jQuery Mobile.
 	<a href="/mobile/">See all versions of jQuery Mobile</a>.
 </p>
-<h3>Latest Stable {{version}}</h3>
 <ul>
 	<li>
 		jQuery Mobile {{version}} -
