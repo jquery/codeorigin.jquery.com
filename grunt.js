@@ -265,6 +265,21 @@ grunt.registerTask( "build-index", function() {
 		};
 	}
 
+	function getQunitData() {
+		var files = grunt.file.expandFiles( "cdn/qunit/*.js" ),
+			releases = parseReleases( files,
+				/(qunit\/qunit-(\d+\.\d+\.\d+[^.]*)(?:\.(min))?\.js)/ );
+
+		releases.forEach(function( release ) {
+			release.theme = release.filename.replace( ".js", ".css" );
+		});
+
+		return {
+			latestStable: getLatestStable( releases ),
+			all: releases
+		};
+	}
+
 	Handlebars.registerHelper( "release", function( prefix, release ) {
 		var html = prefix + " " + release.version + " - " +
 			"<a href='/" + release.filename + "'>uncompressed</a>";
@@ -308,6 +323,7 @@ grunt.registerTask( "build-index", function() {
 	data.ui = getUiData(),
 	data.color = getColorData();
 	data.mobile = getMobileData();
+	data.qunit = getQunitData();
 
 	grunt.file.write( "dist/wordpress/posts/page/index.html",
 		Handlebars.compile( grunt.file.read( "templates/index.hbs" ) )( data ) );
@@ -323,6 +339,9 @@ grunt.registerTask( "build-index", function() {
 
 	grunt.file.write( "dist/wordpress/posts/page/mobile.html",
 		Handlebars.compile( grunt.file.read( "templates/mobile.hbs" ) )( data ) );
+
+	grunt.file.write( "dist/wordpress/posts/page/qunit.html",
+		Handlebars.compile( grunt.file.read( "templates/qunit.hbs" ) )( data ) );
 });
 
 };
