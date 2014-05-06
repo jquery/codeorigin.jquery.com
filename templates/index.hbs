@@ -35,14 +35,19 @@
 	<a href="/ui/">See all versions of jQuery UI</a>.
 </p>
 
-{{#with ui.[0]}}
-	{{include "ui-latest"}}
-{{/with}}
-
+{{#if ui.[0].latestStable}}
+	{{#with ui.[0]}}
+		{{include "ui-latest"}}
+	{{/with}}
+{{/if}}
 {{#with ui.[1]}}
 	{{include "ui-latest"}}
 {{/with}}
-
+{{#unless ui.[0].latestStable}}
+	{{#with ui.[2]}}
+		{{include "ui-latest"}}
+	{{/with}}
+{{/unless}}
 {{#with mobile.latestStable}}
 <h2>jQuery Mobile</h2>
 <p>
