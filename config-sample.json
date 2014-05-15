@@ -1,5 +1,5 @@
 {
-	"url": "local.codeorigin.jquery.com",
+	"url": "vagrant.codeorigin.jquery.com",
 	"username": "admin",
 	"password": "secret",
 	"cdn": {
