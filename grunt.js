@@ -4,7 +4,8 @@ module.exports = function( grunt ) {
 
 var _ = require( "underscore" ),
 	semver = require( "semver" ),
-	Handlebars = require( "handlebars" );
+	Handlebars = require( "handlebars" ),
+	http = require( "http" );
 
 grunt.loadNpmTasks( "grunt-clean" );
 grunt.loadNpmTasks( "grunt-html" );
@@ -44,10 +45,6 @@ grunt.initConfig({
 		dir: "dist/wordpress"
 	}, grunt.file.readJSON( "config.json" ) )
 });
-
-grunt.registerTask( "default", "build-wordpress" );
-grunt.registerTask( "build", "build-pages build-resources build-index" );
-grunt.registerTask( "build-wordpress", "check-modules clean lint build" );
 
 grunt.registerTask( "build-index", function() {
 	var rversion = /^(\d+)\.(\d+)(?:\.(\d+))?-?(.*)$/;
@@ -343,5 +340,37 @@ grunt.registerTask( "build-index", function() {
 	grunt.file.write( "dist/wordpress/posts/page/qunit.html",
 		Handlebars.compile( grunt.file.read( "templates/qunit.hbs" ) )( data ) );
 });
+
+grunt.registerTask( "reload-listings", function() {
+	var done = this.async(),
+		host = "http://" + grunt.config( "wordpress" ).url,
+		paths = [ "/", "/jquery/", "/ui/", "/mobile/", "/color/", "/qunit/" ],
+		waiting = paths.length;
+
+	paths.forEach(function( path ) {
+		path = host + path;
+		http.get( path + "?reload", function( response ) {
+			if ( response.statusCode >= 400 ) {
+				grunt.log.error( "Error reloading " + path );
+				grunt.log.error( "Status code: " + response.statusCode );
+				return done( false );
+			}
+
+			grunt.log.writeln( "Successfully reloaded " + path );
+			if ( !--waiting ) {
+				done();
+			}
+		}).on( "error", function( error ) {
+			grunt.log.error( "Error loading " + path );
+			grunt.log.error( error );
+			done( false );
+		});
+	});
+});
+
+grunt.registerTask( "default", "build-wordpress" );
+grunt.registerTask( "build", "build-pages build-resources build-index" );
+grunt.registerTask( "build-wordpress", "check-modules clean lint build" );
+grunt.registerTask( "deploy", "wordpress-deploy reload-listings" );
 
 };
