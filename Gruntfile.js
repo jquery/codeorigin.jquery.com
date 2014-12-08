@@ -1,53 +1,23 @@
 module.exports = function( grunt ) {
 
-"use strict";
-
 var _ = require( "underscore" ),
 	semver = require( "semver" ),
 	Handlebars = require( "handlebars" ),
 	http = require( "http" );
 
-grunt.loadNpmTasks( "grunt-clean" );
-grunt.loadNpmTasks( "grunt-html" );
-grunt.loadNpmTasks( "grunt-wordpress" );
 grunt.loadNpmTasks( "grunt-jquery-content" );
-grunt.loadNpmTasks( "grunt-check-modules" );
 
 grunt.initConfig({
-	clean: {
-		folder: "dist/"
-	},
-	htmllint: {
-		page: "page/**.html"
-	},
-	jshint: {
-		options: {
-			undef: true,
-			node: true
-		}
-	},
-	lint: {
-		grunt: "grunt.js"
-	},
-	watch: {
-		pages: {
-			files: "pages/**/*",
-			tasks: "deploy"
-		}
-	},
-	"build-pages": {
-		all: grunt.file.expandFiles( "pages/**" )
-	},
-	"build-resources": {
-		all: grunt.file.expandFiles( "resources/**" )
-	},
-	wordpress: grunt.utils._.extend({
-		dir: "dist/wordpress"
-	}, grunt.file.readJSON( "config.json" ) )
+	wordpress: (function() {
+		var config = require( "./config" );
+		config.dir = "dist/wordpress";
+		return config;
+	})()
 });
 
 grunt.registerTask( "build-index", function() {
 	var rversion = /^(\d+)\.(\d+)(?:\.(\d+))?-?(.*)$/;
+
 	function normalizeVersion( version ) {
 		var match = rversion.exec( version );
 
@@ -83,6 +53,7 @@ grunt.registerTask( "build-index", function() {
 					version: normalizeVersion( matches[ 2 ] )
 				};
 			})
+
 			// Remove null values from filtering
 			.filter( _.identity )
 			.sort(function( a, b ) {
@@ -91,7 +62,7 @@ grunt.registerTask( "build-index", function() {
 	}
 
 	function getCoreData() {
-		var files = grunt.file.expandFiles( "cdn/*.js" ),
+		var files = grunt.file.expand( "cdn/*.js" ),
 			coreReleases = parseReleases( files,
 				/(jquery-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min|pack))?\.js)/ ),
 			jquery2Releases = coreReleases.filter(function( match ) {
@@ -137,22 +108,18 @@ grunt.registerTask( "build-index", function() {
 
 	function getUiData() {
 		var majorReleases = {},
-			uiReleases = grunt.file.expandDirs( "cdn/ui/*" )
+			uiReleases = grunt.file.expand( { filter: "isDirectory" }, "cdn/ui/*" )
 			.map(function( dir ) {
-				var version,
-					filename = dir.substring( 4 ) + "jquery-ui.js";
-
-				version = dir.substring( 7 );
-				version = version.substring( 0, version.length - 1 );
+				var filename = dir.substring( 4 ) + "/jquery-ui.js";
 
 				return {
 					filename: filename,
-					version: version,
+					version: dir.substring( 7 ),
 					minified: filename.replace( ".js", ".min.js" ),
-					themes: grunt.file.expandDirs( dir + "themes/*" ).map(function( themeDir ) {
-						var theme = themeDir.substring( dir.length + 7 );
-						return theme.substring( 0, theme.length - 1 );
-					})
+					themes: grunt.file.expand( { filter: "isDirectory" }, dir + "/themes/*" )
+						.map(function( themeDir ) {
+							return themeDir.substring( dir.length + 8 );
+						})
 				};
 			})
 			.sort(function( a, b ) {
@@ -185,7 +152,7 @@ grunt.registerTask( "build-index", function() {
 	}
 
 	function getMobileData() {
-		var files = grunt.file.expandFiles( "cdn/mobile/*/*.css" ),
+		var files = grunt.file.expand( "cdn/mobile/*/*.css" ),
 			releases = files.map(function( file ) {
 				var version = /cdn\/mobile\/([^\/]+)/.exec( file )[ 1 ],
 					filename = "mobile/" + version + "/jquery.mobile-" + version + ".js",
@@ -232,7 +199,7 @@ grunt.registerTask( "build-index", function() {
 	}
 
 	function getColorData() {
-		var files = grunt.file.expandFiles( "cdn/color/*.js" ),
+		var files = grunt.file.expand( "cdn/color/*.js" ),
 			releases = parseReleases( files,
 				/(color\/jquery.color-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min))?\.js)/ ),
 			modes = [ "svg-names", "plus-names" ];
@@ -263,7 +230,7 @@ grunt.registerTask( "build-index", function() {
 	}
 
 	function getQunitData() {
-		var files = grunt.file.expandFiles( "cdn/qunit/*.js" ),
+		var files = grunt.file.expand( "cdn/qunit/*.js" ),
 			releases = parseReleases( files,
 				/(qunit\/qunit-(\d+\.\d+\.\d+[^.]*)(?:\.(min))?\.js)/ );
 
@@ -317,7 +284,7 @@ grunt.registerTask( "build-index", function() {
 	})());
 
 	var data = getCoreData();
-	data.ui = getUiData(),
+	data.ui = getUiData();
 	data.mobile = getMobileData();
 	data.color = getColorData();
 	data.qunit = getQunitData();
@@ -368,9 +335,7 @@ grunt.registerTask( "reload-listings", function() {
 	});
 });
 
-grunt.registerTask( "default", "build-wordpress" );
-grunt.registerTask( "build", "build-pages build-resources build-index" );
-grunt.registerTask( "build-wordpress", "check-modules clean lint build" );
-grunt.registerTask( "deploy", "wordpress-deploy reload-listings" );
+grunt.registerTask( "build", [ "build-index" ] );
+grunt.registerTask( "deploy", [ "wordpress-deploy", "reload-listings" ] );
 
 };

@@ -20,12 +20,8 @@
     }
   ],
   "dependencies": {
-    "grunt": "0.3.17",
-    "grunt-clean": "0.3.0",
-    "grunt-html": "0.1.1",
-    "grunt-wordpress": "1.2.1",
-    "grunt-jquery-content": "0.13.0",
-    "grunt-check-modules": "0.1.0",
+    "grunt": "0.4.5",
+    "grunt-jquery-content": "2.0.0",
     "semver": "2.0.11",
     "underscore": "1.5.1",
     "handlebars": "1.0.12"
