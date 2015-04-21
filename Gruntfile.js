@@ -244,6 +244,27 @@ grunt.registerTask( "build-index", function() {
 		};
 	}
 
+	function getPepData() {
+		var releases = grunt.file.expand( { filter: "isDirectory" }, "cdn/pep/*" )
+			.map(function( dir ) {
+				var filename = dir.substring( 4 ) + "/pep.js";
+
+				return {
+					filename: filename,
+					version: dir.substring( 8 ),
+					minified: filename.replace( ".js", ".min.js" )
+				};
+			})
+			.sort(function( a, b ) {
+				return semver.compare( b.version, a.version );
+			});
+
+		return {
+			latestStable: getLatestStable( releases ),
+			all: releases
+		};
+	}
+
 	Handlebars.registerHelper( "release", function( prefix, release ) {
 		var html = prefix + " " + release.version + " - " +
 			"<a href='/" + release.filename + "'>uncompressed</a>";
@@ -288,6 +309,7 @@ grunt.registerTask( "build-index", function() {
 	data.mobile = getMobileData();
 	data.color = getColorData();
 	data.qunit = getQunitData();
+	data.pep = getPepData();
 
 	grunt.file.write( "dist/wordpress/posts/page/index.html",
 		Handlebars.compile( grunt.file.read( "templates/index.hbs" ) )( data ) );
@@ -306,12 +328,15 @@ grunt.registerTask( "build-index", function() {
 
 	grunt.file.write( "dist/wordpress/posts/page/qunit.html",
 		Handlebars.compile( grunt.file.read( "templates/qunit.hbs" ) )( data ) );
+
+	grunt.file.write( "dist/wordpress/posts/page/pep.html",
+		Handlebars.compile( grunt.file.read( "templates/pep.hbs" ) )( data ) );
 });
 
 grunt.registerTask( "reload-listings", function() {
 	var done = this.async(),
 		host = "http://" + grunt.config( "wordpress" ).url,
-		paths = [ "/", "/jquery/", "/ui/", "/mobile/", "/color/", "/qunit/" ],
+		paths = [ "/", "/jquery/", "/ui/", "/mobile/", "/color/", "/qunit/", "/pep/" ],
 		waiting = paths.length;
 
 	paths.forEach(function( path ) {
