@@ -6,13 +6,26 @@ var _ = require( "underscore" ),
 	http = require( "http" );
 
 grunt.loadNpmTasks( "grunt-jquery-content" );
+grunt.loadNpmTasks("grunt-sri");
 
 grunt.initConfig({
 	wordpress: (function() {
 		var config = require( "./config" );
 		config.dir = "dist/wordpress";
 		return config;
-	})()
+	})(),
+	sri: {
+		generate: {
+			src: [
+				"cdn/**/*.js",
+				"cdn/**/*.css",
+				"cdn/**/*.map"
+			],
+			options: {
+				dest: "./sri-directives.json"
+			}
+		}
+	}
 });
 
 grunt.registerTask( "build-index", function() {
@@ -360,7 +373,7 @@ grunt.registerTask( "reload-listings", function() {
 	});
 });
 
-grunt.registerTask( "build", [ "build-index" ] );
+grunt.registerTask( "build", [ "sri:generate", "build-index" ] );
 grunt.registerTask( "deploy", [ "wordpress-deploy", "reload-listings" ] );
 
 };
