@@ -6,7 +6,7 @@ var _ = require( "underscore" ),
 	http = require( "http" );
 
 grunt.loadNpmTasks( "grunt-jquery-content" );
-grunt.loadNpmTasks("grunt-sri");
+grunt.loadNpmTasks( "grunt-sri" );
 
 grunt.initConfig({
 	wordpress: (function() {
@@ -18,8 +18,7 @@ grunt.initConfig({
 		generate: {
 			src: [
 				"cdn/**/*.js",
-				"cdn/**/*.css",
-				"cdn/**/*.map"
+				"cdn/**/*.css"
 			],
 			options: {
 				dest: "./sri-directives.json"
@@ -278,15 +277,25 @@ grunt.registerTask( "build-index", function() {
 		};
 	}
 
+	var sriHashes = require("./sri-directives.json");
 	Handlebars.registerHelper( "release", function( prefix, release ) {
-		var html = prefix + " " + release.version + " - " +
-			"<a href='/" + release.filename + "'>uncompressed</a>";
+		var sri = function(filename) {
+			var hashes = sriHashes["@cdn/" + filename]["hashes"];
+			return "sha256-" + hashes["sha256"] + " sha512-" + hashes["sha512"];
+		};
+
+		var href = function(key, label) {
+			label = (label === undefined ? key : label);
+			return "<a class='open-sri-modal' href='/" + release[key] + "' data-hash='" + sri(release[key]) + "'>" + label + "</a>";
+		};
+
+		var html = prefix + " " + release.version + " - " + href("filename", "uncompressed");
 
 		if ( release.minified ) {
-			html += ", <a href='/" + release.minified + "'>minified</a>";
+			html += ", " + href("minified");
 		}
 		if ( release.packed ) {
-			html += ", <a href='/" + release.packed + "'>packed</a>";
+			html += ", " + href("packed");
 		}
 
 		return new Handlebars.SafeString( html );
