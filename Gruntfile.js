@@ -21,8 +21,8 @@ grunt.initConfig({
 				"cdn/**/*.css"
 			],
 			options: {
-				algorithms: ["sha256"],
-				dest: "./sri-directives.json"
+				algorithms: [ "sha256" ],
+				dest: "dist/resources/sri-directives.json"
 			}
 		}
 	}
@@ -278,25 +278,19 @@ grunt.registerTask( "build-index", function() {
 		};
 	}
 
-	var sriHashes = require("./sri-directives.json");
+	var sriHashes = require( "./dist/resources/sri-directives.json" );
+	function href( file, label ) {
+		var sri = "sha256-" + sriHashes[ "@cdn/" + file ][ "hashes" ][ "sha256" ];
+		return "<a class='open-sri-modal' href='/" + file + "' data-hash='" + sri + "'>" + label + "</a>";
+	}
+
 	Handlebars.registerHelper( "release", function( prefix, release ) {
-		var sri = function(filename) {
-			var hashes = sriHashes["@cdn/" + filename]["hashes"];
-			return "sha256-" + hashes["sha256"];
-		};
-
-		var href = function(key, label) {
-			label = (label === undefined ? key : label);
-			return "<a class='open-sri-modal' href='/" + release[key] + "' data-hash='" + sri(release[key]) + "'>" + label + "</a>";
-		};
-
-		var html = prefix + " " + release.version + " - " + href("filename", "uncompressed");
-
+		var html = prefix + " " + release.version + " - " + href( release.filename, "uncompressed" );
 		if ( release.minified ) {
-			html += ", " + href("minified");
+			html += ", " + href( release.minified, "minified" );
 		}
 		if ( release.packed ) {
-			html += ", " + href("packed");
+			html += ", " + href( release.packed, "packed" );
 		}
 
 		return new Handlebars.SafeString( html );
@@ -383,7 +377,12 @@ grunt.registerTask( "reload-listings", function() {
 	});
 });
 
-grunt.registerTask( "build", [ "sri:generate", "build-index" ] );
+grunt.registerTask( "ensure-dist-resources", function() {
+	grunt.file.mkdir( "dist/resources" );
+});
+
+grunt.registerTask( "sri-generate", [ "ensure-dist-resources", "sri:generate" ] );
+grunt.registerTask( "build", [ "sri-generate", "build-index" ] );
 grunt.registerTask( "deploy", [ "wordpress-deploy", "reload-listings" ] );
 
 };
