@@ -21,6 +21,7 @@ grunt.initConfig({
 				"cdn/**/*.css"
 			],
 			options: {
+				algorithms: ["sha256"],
 				dest: "./sri-directives.json"
 			}
 		}
@@ -281,7 +282,7 @@ grunt.registerTask( "build-index", function() {
 	Handlebars.registerHelper( "release", function( prefix, release ) {
 		var sri = function(filename) {
 			var hashes = sriHashes["@cdn/" + filename]["hashes"];
-			return "sha256-" + hashes["sha256"] + " sha512-" + hashes["sha512"];
+			return "sha256-" + hashes["sha256"];
 		};
 
 		var href = function(key, label) {
