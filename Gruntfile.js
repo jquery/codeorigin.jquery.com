@@ -1,6 +1,6 @@
 module.exports = function( grunt ) {
 
-var _ = require( "underscore" ),
+var _ = require( "lodash" ),
 	semver = require( "semver" ),
 	Handlebars = require( "handlebars" ),
 	http = require( "http" );
