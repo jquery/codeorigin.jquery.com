@@ -6,7 +6,7 @@
 
 {{#each jquery}}
 {{#if this.1.all}}
-<h2 id="jquery-all-[{{this.[0]}}].x">jQuery Core - All {{this.[0]}}.x Versions</h2>
+<h2 id="jquery-all-{{this.[0]}}.x">jQuery Core - All {{this.[0]}}.x Versions</h2>
 <ul>
 {{#each this.1.all}}
 	<li>{{release "jQuery Core" this}}</li>
