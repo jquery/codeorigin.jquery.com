@@ -5,7 +5,7 @@
 {{include "jquery-git"}}
 
 {{#with jquery2}}
-<h2>jQuery Core - All 2.x Versions</h2>
+<h2 id="jquery-all-2.x">jQuery Core - All 2.x Versions</h2>
 <ul>
 {{#each all}}
 	<li>{{release "jQuery Core" this}}</li>
@@ -14,7 +14,7 @@
 {{/with}}
 
 {{#with jquery1}}
-<h2>jQuery Core - All 1.x Versions</h2>
+<h2 id="jquery-all-1.x">jQuery Core - All 1.x Versions</h2>
 <ul>
 {{#each all}}
 	<li>{{release "jQuery Core" this}}</li>
@@ -23,7 +23,7 @@
 {{/with}}
 
 {{#with migrate}}
-<h2>jQuery Migrate - All Versions</h2>
+<h2 id="jquery-migrate-all">jQuery Migrate - All Versions</h2>
 <ul>
 {{#each all}}
 	<li>{{release "jQuery Migrate" this}}</li>
