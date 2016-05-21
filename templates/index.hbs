@@ -8,19 +8,14 @@
 	<a href="/jquery/">See all versions of jQuery Core</a>.
 </p>
 
-{{#with jquery2.latestStable}}
-<h3>jQuery 2.x (IE &lt;9 not supported)</h3>
+{{#each jquery}}
+{{#if this.1.latestStable}}
+<h3>jQuery {{this.[0]}}.x{{#ifeq this.[0] '1'}}{{else}} (IE &lt;9 not supported){{/ifeq}}</h3>
 <ul>
-	<li>{{release "jQuery Core" this}}</li>
+	<li>{{release "jQuery Core" this.1.latestStable}}</li>
 </ul>
-{{/with}}
-
-{{#with jquery1.latestStable}}
-<h3>jQuery 1.x</h3>
-<ul>
-	<li>{{release "jQuery Core" this}}</li>
-</ul>
-{{/with}}
+{{/if}}
+{{/each}}
 
 {{#with migrate.latestStable}}
 <h3>jQuery Migrate</h3>

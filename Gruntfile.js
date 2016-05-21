@@ -305,6 +305,13 @@ grunt.registerTask( "build-index", function() {
 		return "<a class='open-sri-modal' href='/" + file + "' data-hash='" + sri + "'>" + label + "</a>";
 	}
 
+	Handlebars.registerHelper( "ifeq", function( v1, v2, options ) {
+		if (v1 === v2) {
+			return options.fn( this );
+		}
+		return options.inverse( this );
+	} );
+
 	Handlebars.registerHelper( "release", function( prefix, release ) {
 		var html = prefix + " " + release.version + " - " + href( release.filename, "uncompressed" );
 		if ( release.minified ) {
