@@ -53,8 +53,7 @@ grunt.registerTask( "build-index", function() {
 	function parseReleases( files, regex ) {
 		return files
 			.map(function( filename ) {
-				var type,
-					matches = regex.exec( filename );
+				var matches = regex.exec( filename );
 
 				// matches[ 3 ] = "min" or "pack" or ""
 				if ( !matches || matches[ 3 ] ) {
@@ -74,17 +73,36 @@ grunt.registerTask( "build-index", function() {
 			});
 	}
 
+	function parseStableReleases() {
+	    return parseReleases.apply( null, arguments )
+			.filter( function ( release ) {
+
+				// Filter out non-stable releases via this semver trick.
+				return semver.satisfies( release.version, ">=0" )
+			} )
+	}
+	
+	function groupByMajor( releases ) {
+	    return _( releases )
+			.groupBy( function( release ) {
+				return semver.major( release.version );
+			} )
+			.map( function( group, key) {
+				return [ key, group ]
+			} )
+			.sortBy( function( group ) {
+				return group[ 0 ];
+			} )
+			.reverse()
+			.value()
+	}
+
 	function getCoreData() {
 		var files = grunt.file.expand( "cdn/*.js" ),
-			coreReleases = parseReleases( files,
+			coreReleases = parseStableReleases( files,
 				/(jquery-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min|pack))?\.js)/ ),
-			jquery2Releases = coreReleases.filter(function( match ) {
-				return semver.satisfies( match.version, "2.x" );
-			}),
-			jquery1Releases = coreReleases.filter(function( match ) {
-				return semver.satisfies( match.version, "1.x" );
-			}),
-			migrateReleases = parseReleases( files,
+			coreReleasesGrouped = groupByMajor( coreReleases ),
+			migrateReleases = parseStableReleases( files,
 				/(jquery-migrate-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min))?\.js)/ );
 
 		function addTypes( release ) {
@@ -99,24 +117,27 @@ grunt.registerTask( "build-index", function() {
 			}
 		}
 
-		jquery1Releases.forEach( addTypes );
-		jquery2Releases.forEach( addTypes );
+		coreReleasesGrouped.forEach( function( group ) {
+			group[ 1 ].forEach( addTypes );
+		} );
 		migrateReleases.forEach( addTypes );
 
-		return {
-			jquery2: {
-				latestStable: getLatestStable( jquery2Releases ),
-				all: jquery2Releases
-			},
-			jquery1: {
-				latestStable: getLatestStable( jquery1Releases ),
-				all: jquery1Releases
-			},
+		var index = {
+			jquery: [],
 			migrate: {
 				latestStable: getLatestStable( migrateReleases ),
 				all: migrateReleases
 			}
 		};
+
+		coreReleasesGrouped.forEach( function( group ) {
+			index.jquery.push( [ group[ 0 ], {
+				latestStable: getLatestStable( group[ 1 ] ),
+				all: group[ 1 ]
+			} ] );
+		} );
+
+		return index;
 	}
 
 	function getUiData() {
@@ -213,7 +234,7 @@ grunt.registerTask( "build-index", function() {
 
 	function getColorData() {
 		var files = grunt.file.expand( "cdn/color/*.js" ),
-			releases = parseReleases( files,
+			releases = parseStableReleases( files,
 				/(color\/jquery.color-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min))?\.js)/ ),
 			modes = [ "svg-names", "plus-names" ];
 
@@ -244,7 +265,7 @@ grunt.registerTask( "build-index", function() {
 
 	function getQunitData() {
 		var files = grunt.file.expand( "cdn/qunit/*.js" ),
-			releases = parseReleases( files,
+			releases = parseStableReleases( files,
 				/(qunit\/qunit-(\d+\.\d+\.\d+[^.]*)(?:\.(min))?\.js)/ );
 
 		releases.forEach(function( release ) {
