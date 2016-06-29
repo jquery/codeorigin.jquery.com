@@ -107,13 +107,21 @@ grunt.registerTask( "build-index", function() {
 
 		function addTypes( release ) {
 			var minFilename = release.filename.replace( ".js", ".min.js" ),
-				packFilename = release.filename.replace( ".js", ".pack.js" );
+				packFilename = release.filename.replace( ".js", ".pack.js" ),
+				slimFilename = release.filename.replace( ".js", ".slim.js" ),
+				slimMinFilename = release.filename.replace( ".js", ".slim.min.js" );
 
 			if ( files.indexOf( "cdn/" + minFilename ) !== -1 ) {
 				release.minified = minFilename;
 			}
 			if ( files.indexOf( "cdn/" + packFilename ) !== -1 ) {
 				release.packed = packFilename;
+			}
+			if ( files.indexOf( "cdn/" + slimFilename ) !== -1 ) {
+				release.slim = slimFilename;
+			}
+			if ( files.indexOf( "cdn/" + slimMinFilename ) !== -1 ) {
+				release.slimMinified = slimMinFilename;
 			}
 		}
 
@@ -320,6 +328,12 @@ grunt.registerTask( "build-index", function() {
 		}
 		if ( release.packed ) {
 			html += ", " + href( release.packed, "packed" );
+		}
+		if ( release.slim ) {
+			html += ", " + href( release.slim, "slim" );
+		}
+		if ( release.slimMinified ) {
+			html += ", " + href( release.slimMinified, "slim minified" );
 		}
 
 		return new Handlebars.SafeString( html );
