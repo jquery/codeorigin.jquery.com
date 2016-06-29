@@ -8,7 +8,7 @@ var _ = require( "lodash" ),
 grunt.loadNpmTasks( "grunt-jquery-content" );
 grunt.loadNpmTasks( "grunt-sri" );
 
-grunt.initConfig({
+grunt.initConfig( {
 	wordpress: (function() {
 		var config = require( "./config" );
 		config.dir = "dist/wordpress";
@@ -21,12 +21,12 @@ grunt.initConfig({
 				"cdn/**/*.css"
 			],
 			options: {
-				algorithms: [ "sha256" ],
+				algorithms: ["sha256"],
 				dest: "dist/resources/sri-directives.json"
 			}
 		}
 	}
-});
+} );
 
 grunt.registerTask( "build-index", function() {
 	var rversion = /^(\d+)\.(\d+)(?:\.(\d+))?-?(.*)$/;
@@ -34,64 +34,64 @@ grunt.registerTask( "build-index", function() {
 	function normalizeVersion( version ) {
 		var match = rversion.exec( version );
 
-		return match[ 1 ] + "." + match[ 2 ] + "." + ( match[ 3 ] || 0 ) +
-			( match[ 4 ] ? "-" + match[ 4 ] : "" );
+		return match[1] + "." + match[2] + "." + ( match[3] || 0 ) +
+			( match[4] ? "-" + match[4] : "" );
 	}
 
 	function camelCase( str ) {
 		return str.replace( /-([a-z])/g, function( $0, $1 ) {
 			return $1.toUpperCase();
-		});
+		} );
 	}
 
 	function getLatestStable( releases ) {
 		return _.find( releases, function( release ) {
 			return release.version.indexOf( "-" ) === -1;
-		});
+		} );
 	}
 
 	function parseReleases( files, regex ) {
 		return files
-			.map(function( filename ) {
+			.map( function( filename ) {
 				var matches = regex.exec( filename );
 
 				// matches[ 3 ] = "min" or "pack" or ""
-				if ( !matches || matches[ 3 ] ) {
+				if ( !matches || matches[3] ) {
 					return null;
 				}
 
 				return {
-					filename: matches[ 0 ],
-					version: normalizeVersion( matches[ 2 ] )
+					filename: matches[0],
+					version: normalizeVersion( matches[2] )
 				};
-			})
+			} )
 
 			// Remove null values from filtering
 			.filter( _.identity )
-			.sort(function( a, b ) {
+			.sort( function( a, b ) {
 				return semver.compare( b.version, a.version );
-			});
+			} );
 	}
 
 	function parseStableReleases() {
-	    return parseReleases.apply( null, arguments )
-			.filter( function ( release ) {
+		return parseReleases.apply( null, arguments )
+			.filter( function( release ) {
 
 				// Filter out non-stable releases via this semver trick.
 				return semver.satisfies( release.version, ">=0" )
 			} )
 	}
-	
+
 	function groupByMajor( releases ) {
-	    return _( releases )
+		return _( releases )
 			.groupBy( function( release ) {
 				return semver.major( release.version );
 			} )
-			.map( function( group, key) {
-				return [ key, group ]
+			.map( function( group, key ) {
+				return [key, group]
 			} )
 			.sortBy( function( group ) {
-				return group[ 0 ];
+				return group[0];
 			} )
 			.reverse()
 			.value()
@@ -118,7 +118,7 @@ grunt.registerTask( "build-index", function() {
 		}
 
 		coreReleasesGrouped.forEach( function( group ) {
-			group[ 1 ].forEach( addTypes );
+			group[1].forEach( addTypes );
 		} );
 		migrateReleases.forEach( addTypes );
 
@@ -131,10 +131,10 @@ grunt.registerTask( "build-index", function() {
 		};
 
 		coreReleasesGrouped.forEach( function( group ) {
-			index.jquery.push( [ group[ 0 ], {
-				latestStable: getLatestStable( group[ 1 ] ),
-				all: group[ 1 ]
-			} ] );
+			index.jquery.push( [group[0], {
+				latestStable: getLatestStable( group[1] ),
+				all: group[1]
+			}] );
 		} );
 
 		return index;
@@ -142,53 +142,53 @@ grunt.registerTask( "build-index", function() {
 
 	function getUiData() {
 		var majorReleases = {},
-			uiReleases = grunt.file.expand( { filter: "isDirectory" }, "cdn/ui/*" )
-			.map(function( dir ) {
-				var filename = dir.substring( 4 ) + "/jquery-ui.js";
+			uiReleases = grunt.file.expand( {filter: "isDirectory"}, "cdn/ui/*" )
+				.map( function( dir ) {
+					var filename = dir.substring( 4 ) + "/jquery-ui.js";
 
-				return {
-					filename: filename,
-					version: dir.substring( 7 ),
-					minified: filename.replace( ".js", ".min.js" ),
-					themes: grunt.file.expand( { filter: "isDirectory" }, dir + "/themes/*" )
-						.map(function( themeDir ) {
-							return themeDir.substring( dir.length + 8 );
-						})
-				};
-			})
-			.sort(function( a, b ) {
-				return semver.compare( b.version, a.version );
-			});
+					return {
+						filename: filename,
+						version: dir.substring( 7 ),
+						minified: filename.replace( ".js", ".min.js" ),
+						themes: grunt.file.expand( {filter: "isDirectory"}, dir + "/themes/*" )
+							.map( function( themeDir ) {
+								return themeDir.substring( dir.length + 8 );
+							} )
+					};
+				} )
+				.sort( function( a, b ) {
+					return semver.compare( b.version, a.version );
+				} );
 
 		// Group by major release
-		uiReleases.forEach(function( release ) {
-			var major = /^\d+\.\d+/.exec( release.version )[ 0 ];
-			if ( !majorReleases[ major ] ) {
-				majorReleases[ major ] = [];
+		uiReleases.forEach( function( release ) {
+			var major = /^\d+\.\d+/.exec( release.version )[0];
+			if ( !majorReleases[major] ) {
+				majorReleases[major] = [];
 			}
 
-			majorReleases[ major ].push( release );
-		});
+			majorReleases[major].push( release );
+		} );
 
 		// Convert to array of major release groups
-		return Object.keys( majorReleases ).map(function( major ) {
-			var all = majorReleases[ major ],
+		return Object.keys( majorReleases ).map( function( major ) {
+			var all = majorReleases[major],
 				latestStable = getLatestStable( all );
 
 			return {
 				major: major,
 				latestStable: latestStable,
-				all: all.filter(function( release ) {
+				all: all.filter( function( release ) {
 					return release !== latestStable;
-				})
+				} )
 			};
-		});
+		} );
 	}
 
 	function getMobileData() {
 		var files = grunt.file.expand( "cdn/mobile/*/*.css" ),
-			releases = files.map(function( file ) {
-				var version = /cdn\/mobile\/([^\/]+)/.exec( file )[ 1 ],
+			releases = files.map( function( file ) {
+				var version = /cdn\/mobile\/([^\/]+)/.exec( file )[1],
 					filename = "mobile/" + version + "/jquery.mobile-" + version + ".js",
 					mainCssFile = "cdn/" + filename.replace( ".js", ".css" );
 
@@ -200,12 +200,12 @@ grunt.registerTask( "build-index", function() {
 					filename: filename,
 					version: normalizeVersion( version )
 				};
-			})
+			} )
 			// Remove null values from filtering
-			.filter( _.identity )
-			.sort(function( a, b ) {
-				return semver.compare( b.version, a.version );
-			});
+				.filter( _.identity )
+				.sort( function( a, b ) {
+					return semver.compare( b.version, a.version );
+				} );
 
 		function addTypes( release ) {
 			var minFilename = release.filename.replace( ".js", ".min.js" ),
@@ -236,23 +236,23 @@ grunt.registerTask( "build-index", function() {
 		var files = grunt.file.expand( "cdn/color/*.js" ),
 			releases = parseStableReleases( files,
 				/(color\/jquery.color-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min))?\.js)/ ),
-			modes = [ "svg-names", "plus-names" ];
+			modes = ["svg-names", "plus-names"];
 
 		function addTypes( release ) {
 			release.minified = release.filename.replace( ".js", ".min.js" );
 
-			modes.forEach(function( mode ) {
+			modes.forEach( function( mode ) {
 				var filename = release.filename.replace( "jquery.color", "jquery.color." + mode ),
 					minFilename = filename.replace( ".js", ".min.js" );
 
 				if ( files.indexOf( "cdn/" + filename ) !== -1 ) {
-					release[ camelCase( mode ) ] = {
+					release[camelCase( mode )] = {
 						filename: filename,
 						version: release.version,
 						minified: minFilename
 					};
 				}
-			});
+			} );
 		}
 
 		releases.forEach( addTypes );
@@ -268,9 +268,9 @@ grunt.registerTask( "build-index", function() {
 			releases = parseStableReleases( files,
 				/(qunit\/qunit-(\d+\.\d+\.\d+[^.]*)(?:\.(min))?\.js)/ );
 
-		releases.forEach(function( release ) {
+		releases.forEach( function( release ) {
 			release.theme = release.filename.replace( ".js", ".css" );
-		});
+		} );
 
 		return {
 			latestStable: getLatestStable( releases ),
@@ -279,8 +279,8 @@ grunt.registerTask( "build-index", function() {
 	}
 
 	function getPepData() {
-		var releases = grunt.file.expand( { filter: "isDirectory" }, "cdn/pep/*" )
-			.map(function( dir ) {
+		var releases = grunt.file.expand( {filter: "isDirectory"}, "cdn/pep/*" )
+			.map( function( dir ) {
 				var filename = dir.substring( 4 ) + "/pep.js";
 
 				return {
@@ -288,10 +288,10 @@ grunt.registerTask( "build-index", function() {
 					version: dir.substring( 8 ),
 					minified: filename.replace( ".js", ".min.js" )
 				};
-			})
-			.sort(function( a, b ) {
+			} )
+			.sort( function( a, b ) {
 				return semver.compare( b.version, a.version );
-			});
+			} );
 
 		return {
 			latestStable: getLatestStable( releases ),
@@ -300,13 +300,14 @@ grunt.registerTask( "build-index", function() {
 	}
 
 	var sriHashes = require( "./dist/resources/sri-directives.json" );
+
 	function href( file, label ) {
-		var sri = "sha256-" + sriHashes[ "@cdn/" + file ][ "hashes" ][ "sha256" ];
+		var sri = "sha256-" + sriHashes["@cdn/" + file]["hashes"]["sha256"];
 		return "<a class='open-sri-modal' href='/" + file + "' data-hash='" + sri + "'>" + label + "</a>";
 	}
 
 	Handlebars.registerHelper( "ifeq", function( v1, v2, options ) {
-		if (v1 === v2) {
+		if ( v1 === v2 ) {
 			return options.fn( this );
 		}
 		return options.inverse( this );
@@ -322,12 +323,12 @@ grunt.registerTask( "build-index", function() {
 		}
 
 		return new Handlebars.SafeString( html );
-	});
+	} );
 
 	Handlebars.registerHelper( "uiTheme", function( release ) {
 		var url;
 		// TODO: link to minified theme if available
-		if ( release.themes.indexOf( "smoothness" ) !== -1) {
+		if ( release.themes.indexOf( "smoothness" ) !== -1 ) {
 			url = "smoothness/jquery-ui.css";
 		} else {
 			url = "base/jquery-ui.css";
@@ -335,19 +336,19 @@ grunt.registerTask( "build-index", function() {
 
 		return new Handlebars.SafeString(
 			"<a href='/ui/" + release.version + "/themes/" + url + "'>theme</a>" );
-	});
+	} );
 
 	Handlebars.registerHelper( "include", (function() {
 		var templates = {};
 		return function( template ) {
 			if ( !templates.hasOwnProperty( template ) ) {
-				templates[ template ] = Handlebars.compile(
+				templates[template] = Handlebars.compile(
 					grunt.file.read( "templates/" + template + ".hbs" ) );
 			}
 
-			return new Handlebars.SafeString( templates[ template ]( this ) );
+			return new Handlebars.SafeString( templates[template]( this ) );
 		};
-	})());
+	})() );
 
 	var data = getCoreData();
 	data.ui = getUiData();
@@ -376,15 +377,15 @@ grunt.registerTask( "build-index", function() {
 
 	grunt.file.write( "dist/wordpress/posts/page/pep.html",
 		Handlebars.compile( grunt.file.read( "templates/pep.hbs" ) )( data ) );
-});
+} );
 
 grunt.registerTask( "reload-listings", function() {
 	var done = this.async(),
 		host = "http://" + grunt.config( "wordpress" ).url,
-		paths = [ "/", "/jquery/", "/ui/", "/mobile/", "/color/", "/qunit/", "/pep/" ],
+		paths = ["/", "/jquery/", "/ui/", "/mobile/", "/color/", "/qunit/", "/pep/"],
 		waiting = paths.length;
 
-	paths.forEach(function( path ) {
+	paths.forEach( function( path ) {
 		path = host + path;
 		http.get( path + "?reload", function( response ) {
 			if ( response.statusCode >= 400 ) {
@@ -397,20 +398,20 @@ grunt.registerTask( "reload-listings", function() {
 			if ( !--waiting ) {
 				done();
 			}
-		}).on( "error", function( error ) {
+		} ).on( "error", function( error ) {
 			grunt.log.error( "Error loading " + path );
 			grunt.log.error( error );
 			done( false );
-		});
-	});
-});
+		} );
+	} );
+} );
 
 grunt.registerTask( "ensure-dist-resources", function() {
 	grunt.file.mkdir( "dist/resources" );
-});
+} );
 
-grunt.registerTask( "sri-generate", [ "ensure-dist-resources", "sri:generate" ] );
-grunt.registerTask( "build", [ "sri-generate", "build-index" ] );
-grunt.registerTask( "deploy", [ "wordpress-deploy", "reload-listings" ] );
+grunt.registerTask( "sri-generate", ["ensure-dist-resources", "sri:generate"] );
+grunt.registerTask( "build", ["sri-generate", "build-index"] );
+grunt.registerTask( "deploy", ["wordpress-deploy", "reload-listings"] );
 
 };
