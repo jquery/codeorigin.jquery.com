@@ -316,6 +316,10 @@ grunt.registerTask( "build-index", function() {
 		return options.inverse( this );
 	} );
 
+	Handlebars.registerHelper( "sriLink", function( file, label ) {
+		return new Handlebars.SafeString( href( file, label ) );
+	} );
+
 	Handlebars.registerHelper( "release", function( prefix, release ) {
 		var html = prefix + " " + release.version + " - " + href( release.filename, "uncompressed" );
 		if ( release.minified ) {
