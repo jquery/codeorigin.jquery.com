@@ -424,9 +424,10 @@ grunt.registerTask( "ensure-dist-resources", function() {
 } );
 
 grunt.registerTask( "ensure-wordpress-config", function() {
-	// This will fail with "Cannot find module" if the file
-	// does not exist
+	// Fail with "Cannot find module" if the file does not exist
 	var config = require( "./config" );
+	// On jq-builder hosts, Puppet provisions config.json with wp credentials.
+	// See also jquery::siteupdater in jquery/infrastucture [private].
 	config.dir = "dist/wordpress";
 	grunt.config.merge( {
 		wordpress: config

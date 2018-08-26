@@ -2,6 +2,8 @@
 require_once( 'netdnarws-php/NetDNA.php' );
 
 $config = json_decode( file_get_contents( './config.json' ), true );
+// On jq-wp hosts, Puppet provisions config.json with cdn credentials.
+// See also jquery::wp::jquery#codeorigin in jquery/infrastucture [private].
 $config = $config[ 'cdn' ];
 $zone_id = $config[ 'zone_id' ];
 
@@ -17,8 +19,15 @@ $file = $parts[ 0 ];
 header( 'Content-Type: text/plain' );
 echo "Attempting to purge: $zone_id: $file.\n";
 
-$api = new NetDNA( 'jquery', $config[ 'consumer_key' ], $config[ 'consumer_secret' ] );
-$result = $api->delete( '/zones/pull.json/' . $zone_id . '/cache', array( 'file' => $file ) );
+$api = new NetDNA(
+	$config[ 'alias' ],
+	$config[ 'consumer_key' ],
+	$config[ 'consumer_secret' ]
+);
+$result = $api->delete(
+	'/zones/pull.json/' . $zone_id . '/cache',
+	array( 'file' => $file )
+);
 $result = json_decode( $result, true );
 
 if ( $result[ 'code' ] !== 200 ) {
