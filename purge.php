@@ -1,24 +1,59 @@
 <?php
-require_once( 'netdnarws-php/NetDNA.php' );
+/**
+ * This file is executed from Nginx using fastcgi.
+ *
+ * The file must be compatible with PHP 5.4 and later.
+ *
+ * See also jquery::wp::jquery in jquery/infrastructure [private].
+ *
+ * Test Plan:
+ *
+ *     $ REQUEST_URI="/example" php purge.php
+ *
+ */
+require_once __DIR__ . '/netdnarws-php/NetDNA.php';
 
-$config = json_decode( file_get_contents( './config.json' ), true );
-$config = $config[ 'cdn' ];
-$zone_id = $config[ 'zone_id' ];
+$configFile = __DIR__ . '/config.json';
 
-$parts = preg_split( '/\?reload=?/', $_SERVER[ 'REQUEST_URI' ] );
-if ( !$parts ) {
-	header( '400 Bad Request' );
-	echo $_SERVER[ 'REQUEST_URI' ] . ' is not a valid URI.';
+if ( !isset( $_SERVER[ 'REQUEST_URI' ] )
+	|| !is_readable( $configFile )
+	|| !function_exists( 'curl_init' )
+) {
+	http_response_code( 500 );
+	echo "Context error.\n";
 	exit;
 }
 
-$file = $parts[ 0 ];
+$config = json_decode( file_get_contents( $configFile ), true );
+$cdnConfig = $config[ 'cdn' ];
+$zoneId = $cdnConfig[ 'zone_id' ];
+$consumerKey = $cdnConfig[ 'consumer_key' ];
+$consumerSecret = $cdnConfig[ 'consumer_secret' ];
+if ( !$zoneId
+	|| !$consumerKey
+	|| !$consumerSecret
+) {
+	http_response_code( 500 );
+	echo "Configuration error.\n";
+	exit;
+}
+
+$parts = explode( '?reload', $_SERVER[ 'REQUEST_URI' ], 2 );
+$file = $parts ? $parts[ 0 ] : null;
+if ( !$file ) {
+	http_response_code( 400 );
+	echo "Bad Request: Invalid REQUEST_URI.\n";
+	exit;
+}
 
 header( 'Content-Type: text/plain' );
-echo "Attempting to purge: $zone_id: $file.\n";
+echo "Attempting to purge:\n\t$file\n\n";
 
-$api = new NetDNA( 'jquery', $config[ 'consumer_key' ], $config[ 'consumer_secret' ] );
-$result = $api->delete( '/zones/pull.json/' . $zone_id . '/cache', array( 'file' => $file ) );
+$api = new NetDNA( 'jquery', $consumerKey, $consumerSecret );
+$result = $api->delete(
+	'/zones/pull.json/' . $zoneId . '/cache',
+	array( 'file' => $file )
+);
 $result = json_decode( $result, true );
 
 if ( $result[ 'code' ] !== 200 ) {
