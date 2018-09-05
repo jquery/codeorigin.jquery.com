@@ -9,9 +9,7 @@
  * Test Plan:
  *
  *     $ REQUEST_URI="/example" php purge.php
- *
  */
-require_once __DIR__ . '/netdnarws-php/NetDNA.php';
 
 $configFile = __DIR__ . '/config.json';
 
@@ -24,40 +22,75 @@ if ( !isset( $_SERVER[ 'REQUEST_URI' ] )
 	exit;
 }
 
-$config = json_decode( file_get_contents( $configFile ), true );
-$cdnConfig = $config[ 'cdn' ];
-$zoneId = $cdnConfig[ 'zone_id' ];
-$consumerKey = $cdnConfig[ 'consumer_key' ];
-$consumerSecret = $cdnConfig[ 'consumer_secret' ];
-if ( !$zoneId
-	|| !$consumerKey
-	|| !$consumerSecret
+$config = json_decode( file_get_contents( $configFile ) );
+$hwConfig = $config->highwinds;
+if ( !$hwConfig
+	|| !$hwConfig->api_url
+	|| !$hwConfig->api_token
+	|| !$hwConfig->account_hash
+	|| !$hwConfig->file_hostname
 ) {
 	http_response_code( 500 );
 	echo "Configuration error.\n";
 	exit;
 }
 
-$parts = explode( '?reload', $_SERVER[ 'REQUEST_URI' ], 2 );
-$file = $parts ? $parts[ 0 ] : null;
-if ( !$file ) {
-	http_response_code( 400 );
-	echo "Bad Request: Invalid REQUEST_URI.\n";
-	exit;
+// The StrikeTracker Purge API is protocol-sensitive.
+// HTTP and HTTPS need to be purged separately, or
+// we can use a protocol-relative file url, which HW
+// supports as short-cut for purging both.
+$file = "//{$hwConfig->file_hostname}/" . ltrim( $_SERVER[ 'REQUEST_URI' ], '/' );
+
+/**
+ * Make an HTTP POST request, submitting JSON data, and receiving JSON data.
+ *
+ * @param string $url
+ * @param array $headers
+ * @param array $postData Data to be serialised using JSON as post body
+ * @return array|false HTTP response body decoded as JSON, or boolean false
+ */
+function jq_request_post_json( $url, array $headers, array $postData ) {
+	$ch = curl_init( $url );
+	curl_setopt_array( $ch, array(
+		CURLOPT_HTTPHEADER => $headers,
+		CURLOPT_POSTFIELDS =>  json_encode( $postData ),
+		CURLOPT_RETURNTRANSFER => true,
+	) );
+	$response = curl_exec( $ch );
+	curl_close( $ch );
+	return $response ? json_decode( $response ) : false;
 }
 
 header( 'Content-Type: text/plain' );
-echo "Attempting to purge:\n\t$file\n\n";
+header( 'X-Content-Type-Options: nosniff' );
+echo "Attempting to purge:\n{$file}\n\n";
 
-$api = new NetDNA( 'jquery', $consumerKey, $consumerSecret );
-$result = $api->delete(
-	'/zones/pull.json/' . $zoneId . '/cache',
-	array( 'file' => $file )
+$result = jq_request_post_json(
+	// url
+	"{$hwConfig->api_url}/api/accounts/{$hwConfig->account_hash}/purge",
+	// headers
+	array(
+		"Authorization: Bearer {$hwConfig->api_token}",
+		"Content-Type: application/json",
+	),
+	// post body (JSON)
+	array(
+		'list' => array(
+			array( 'url' => $file ),
+		),
+	)
 );
-$result = json_decode( $result, true );
 
-if ( $result[ 'code' ] !== 200 ) {
-	echo 'Error reported: ' . print_r( $result, true );
+// Successful responses contain an 'id' that identifies the purge.
+// Errors should contain an 'error' string and 'code' number.
+if ( !$result || !isset( $result->id ) || isset( $result->error ) || isset( $result->code ) ) {
+	echo "Purge may have failed.\n\n";
+	if ( isset( $result->code ) ) {
+		echo "Error code: " . $result->code . "\n";
+	}
+	if ( isset( $result->error ) ) {
+		echo "Error message: " . $result->error . "\n";
+	}
 } else {
-	echo "Done\n";
+	echo "Done!\n";
 }

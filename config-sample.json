@@ -2,8 +2,11 @@
 	"url": "vagrant.codeorigin.jquery.com",
 	"username": "admin",
 	"password": "secret",
-	"cdn": {
-		"consumer_key": "key",
-		"consumer_secret": "secret"
+
+	"highwinds": {
+		"api_url": "https://striketracker.highwinds.com",
+		"api_token": "example_token",
+		"account_hash": "example_hash",
+		"file_hostname": "code.jquery.com"
 	}
 }
