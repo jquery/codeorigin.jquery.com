@@ -37,7 +37,7 @@ if ( !$hwConfig
 
 // The StrikeTracker Purge API is protocol-sensitive.
 // HTTP and HTTPS need to be purged separately, or
-// we can use a protocol-relative file url, which HW
+// we can use a protocol-relative file url, which Highwinds
 // supports as short-cut for purging both.
 $file = "//{$hwConfig->file_hostname}/" . ltrim( $_SERVER[ 'REQUEST_URI' ], '/' );
 
@@ -73,10 +73,10 @@ $result = jq_request_post_json(
 		"Authorization: Bearer {$hwConfig->api_token}",
 		"Content-Type: application/json",
 	),
-	// post body (JSON)
+	// post body (will be encoded as JSON)
 	array(
 		'list' => array(
-			array( 'url' => $file ),
+			array( 'url' => $file, 'purgeAllDynamic' => true ),
 		),
 	)
 );
