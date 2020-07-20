@@ -20,7 +20,7 @@
     "grunt-jquery-content": "3.0.3",
     "grunt-sri": "0.2.0",
     "handlebars": "4.7.6",
-    "lodash": "4.17.15",
+    "lodash": "4.17.19",
     "semver": "7.3.2"
   }
 }
