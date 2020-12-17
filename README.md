@@ -5,6 +5,8 @@ This repo is used to build a Docker container that serves the codeorigin site fo
 
 ## Build a local copy
 
+### Default, no restrictions
+
 To build a local container (defaults to "break glass" mode):
 
 1. Install Docker
@@ -12,6 +14,8 @@ To build a local container (defaults to "break glass" mode):
 1. Build the image: `docker build -t releases ./`
 1. Run the container, exposing port 80: `docker run -p 127.0.0.1:80:80/tcp releases`
 1. To exit the container, press `ctrl+c`
+
+### Redirect non-origin pulls to CDN
 
 To build a local container in deployment mode (redirecting any requests without the magic header that indicates an origin pull), build the container with the header value in an environment variable:
 
@@ -27,12 +31,38 @@ Note that you will need to keep track of `$CDN_ACCESS_KEY` and add it to the hea
 * This should always redirect to `code.jquery.org`: `curl -i localhost/jquery-3.1.1.js`
 * This should always deliver a copy of the file (don't forget to set the environment variable in your current shell): `curl -i -H "cdn-access: ${CDN_ACCESS_KEY}" localhost/jquery-3.1.1.js`
 
+### Add support for `purge.php`
+
+To build a container with support for `purge.php`, set environment variables with the CDN's API key and account hash.
+
+1. Install Docker
+1. Clone this repo, and `cd` into it
+1. Set environment variables for the CDN API key and account hash: `CDN_PURGE_API_TOKEN=(jQuery secret API token) && CDN_PURGE_ACCOUNT_HASH=(jQuery account hash)`
+1. Build the image: `docker build -t purge-releases --build-arg CDN_PURGE_API_TOKEN=$CDN_PURGE_API_TOKEN --build-arg CDN_PURGE_ACCOUNT_HASH=$CDN_PURGE_ACCOUNT_HASH ./`
+1. Run the container, exposing port 80: `docker run -p 127.0.0.1:80:80/tcp purge-releases`
+1. To exit the container, press `ctrl+c`
+
+### Production clone
+
+To build a production clone, include the steps for both non-origin redirects and `purge.php`.
+
+1. Install Docker
+1. Clone this repo, and `cd` into it
+1. Generate a random string for the environment variable: ``CDN_ACCESS_KEY=`openssl rand -hex 16` ``
+1. Set environment variables for the CDN API key and account hash: `CDN_PURGE_API_TOKEN=(jQuery secret API token) && CDN_PURGE_ACCOUNT_HASH=(jQuery account hash)`
+1. Build the image: `docker build -t purge-releases --build-arg CDN_ACCESS_KEY=$CDN_ACCESS_KEY --build-arg CDN_PURGE_API_TOKEN=$CDN_PURGE_API_TOKEN --build-arg CDN_PURGE_ACCOUNT_HASH=$CDN_PURGE_ACCOUNT_HASH ./`
+1. Run the container, exposing port 80: `docker run -p 127.0.0.1:80:80/tcp purge-releases`
+1. To exit the container, press `ctrl+c`
+
 ## Build the production site
 
-To deploy, first generate the CDN access key. Next, you'll need to configure the container host to build from the Dockerfile in this repository, and use the CDN access key as a build argument. Finally, you'll configure the CDN to send both the Host header and the access key during origin pulls.
+To deploy, first generate the CDN access key and locate the CDN API token and account hashes. Next, you'll need to configure the container host to build from the Dockerfile in this repository, and use the CDN access key, CDN API token, and CDN account hash as build arguments. Finally, you'll configure the CDN to send both the Host header and the access key during origin pulls.
 
 1. Generate the access key: ``CDN_ACCESS_KEY=`openssl rand -hex 16` ``
-1. Configure the container host to build from this repo, and set this build variable: `CDN_ACCESS_KEY=(Insert the value of $CDN_ACCESS_KEY here)`
+1. Configure the container host to build from this repo, and set these build variable:
+  * `CDN_ACCESS_KEY=(Insert the value of $CDN_ACCESS_KEY here)`
+  * `CDN_PURGE_API_TOKEN=(Insert the value of the API token here)`
+  * `CDN_PURGE_ACCOUNT_HASH=(Insert the value of the account hash)`
 1. Create the magic header and the host header at the CDN: `cdn-access: (Insert the value of $CDN_ACCESS_KEY here)|Host: (insert URL to app container)`
 
 ## In case of emergency

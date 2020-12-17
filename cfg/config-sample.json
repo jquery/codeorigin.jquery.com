@@ -1,8 +1,4 @@
 {
-	"url": "vagrant.codeorigin.jquery.com",
-	"username": "admin",
-	"password": "secret",
-
 	"highwinds": {
 		"api_url": "https://striketracker.highwinds.com",
 		"api_token": "example_token",
