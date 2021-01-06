@@ -28,7 +28,7 @@ To build a local container in deployment mode (redirecting any requests without 
 
 Note that you will need to keep track of `$CDN_ACCESS_KEY` and add it to the headers sent for origin pulls. To test whether this is working correctly, you can use `curl`:
 
-* This should always redirect to `code.jquery.org`: `curl -i localhost/jquery-3.1.1.js`
+* This should always redirect to `code.jquery.com`: `curl -i localhost/jquery-3.1.1.js`
 * This should always deliver a copy of the file (don't forget to set the environment variable in your current shell): `curl -i -H "cdn-access: ${CDN_ACCESS_KEY}" localhost/jquery-3.1.1.js`
 
 ### Add support for `purge.php`
