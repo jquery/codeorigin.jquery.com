@@ -25,8 +25,8 @@ COPY cfg/purge.php /usr/share/nginx/html/
 # access environment variables without significant workarounds. Furthermore, the variables are
 # required because nginx does not currently support nested if statements.
 RUN if [ -n "$CDN_ACCESS_KEY" ]; then \
-    sed -i s/##PLACEHOLDER-cdn_header_detection-DO_NOT_CHANGE##/"map \$http_x_cdn_access \$reroute_to_cdn { default '1'; $CDN_ACCESS_KEY '0'; }"/g /etc/nginx/conf.d/default.conf && \
-    sed -i s/##PLACEHOLDER-cdn_reroute-DO_NOT_CHANGE##/"if (\$reroute_to_cdn) { return 301 \$scheme:\/\/code.jquery.com\$uri; }"/g /etc/nginx/conf.d/default.conf; \
+    sed -i s/CDN_ACCESS_KEY_PLACEHOLDER/$CDN_ACCESS_KEY/g /etc/nginx/conf.d/default.conf && \
+    sed -i s/##ACTIVATE-XCDNACCESS##//g /etc/nginx/conf.d/default.conf; \
   fi
 
 # Load the releases into the container
