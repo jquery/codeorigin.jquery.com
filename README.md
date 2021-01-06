@@ -21,7 +21,7 @@ To build a local container in deployment mode (redirecting any requests without 
 
 1. Install Docker
 1. Clone this repo, and `cd` into it
-1. Generate a random string for the environment variable: ``CDN_ACCESS_KEY=`openssl rand -hex 16` ``
+1. Generate a random string for the environment variable: ``CDN_ACCESS_KEY=`openssl rand -hex 32` ``
 1. Build the image: `docker build -t prod-releases --build-arg CDN_ACCESS_KEY=$CDN_ACCESS_KEY ./`
 1. Run the container, exposing port 80: `docker run -p 127.0.0.1:80:80/tcp prod-releases`
 1. To exit the container, press `ctrl+c`
