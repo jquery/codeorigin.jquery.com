@@ -1,0 +1,30 @@
+<script>{
+	"title": "jQuery UI - All Versions"
+}</script>
+
+{{include "ui-git"}}
+
+{{#each ui}}
+	<h2>jQuery UI {{major}}</h2>
+	{{#if latestStable}}
+		{{release "jQuery UI" latestStable}}
+		<h3>Themes</h3>
+		{{#each latestStable.themes}}
+			<a href="/ui/{{../latestStable/version}}/themes/{{this}}/jquery-ui.css">{{this}}</a>
+		{{/each}}
+	{{/if}}
+	{{#if all.length}}
+		{{#if latestStable}}
+			<h3>Previous Releases</h3>
+		{{else}}
+			<h3>Pre-Releases</h3>
+		{{/if}}
+		<ul>
+		{{#each all}}
+			<li>
+				{{release "jQuery UI" this}}, {{uiTheme this}}
+			</li>
+		{{/each}}
+		</ul>
+	{{/if}}
+{{/each}}

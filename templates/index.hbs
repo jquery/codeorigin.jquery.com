@@ -1,0 +1,88 @@
+<script>{
+	"title": "jQuery CDN - Latest Stable Versions"
+}</script>
+
+<h2>jQuery Core</h2>
+<p>
+	Showing the latest stable release in each major branch.
+	<a href="/jquery/">See all versions of jQuery Core</a>.
+</p>
+
+{{#each jquery}}
+{{#if this.1.latestStable}}
+<h3>jQuery {{this.[0]}}.x</h3>
+<ul>
+	<li>{{release "jQuery Core" this.1.latestStable}}</li>
+</ul>
+{{/if}}
+{{/each}}
+
+{{#with migrate.latestStable}}
+<h3>jQuery Migrate</h3>
+<ul>
+	<li>{{release "jQuery Migrate" this}}</li>
+</ul>
+{{/with}}
+
+<h2>jQuery UI</h2>
+<p>
+	Showing the latest stable release for the current and legacy release families.
+	<a href="/ui/">See all versions of jQuery UI</a>.
+</p>
+
+{{#if ui.[0].latestStable}}
+	{{#with ui.[0]}}
+		{{include "ui-latest"}}
+	{{/with}}
+{{/if}}
+{{#with ui.[1]}}
+	{{include "ui-latest"}}
+{{/with}}
+{{#unless ui.[0].latestStable}}
+	{{#with ui.[2]}}
+		{{include "ui-latest"}}
+	{{/with}}
+{{/unless}}
+{{#with mobile.latestStable}}
+<h2>jQuery Mobile</h2>
+<p>
+	Showing the latest stable release for jQuery Mobile.
+	<a href="/mobile/">See all versions of jQuery Mobile</a>.
+</p>
+<ul>
+	{{include "mobile-release"}}
+</ul>
+{{/with}}
+
+{{#with color.latestStable}}
+<h2>jQuery Color</h2>
+<p>
+	Showing the latest stable release for jQuery Color.
+	<a href="/color/">See all versions of jQuery Color</a>.
+</p>
+{{include "color-release"}}
+{{/with}}
+
+<h2>QUnit</h2>
+<p>
+	Showing the latest stable release for QUnit.
+	<a href="/qunit/">See all versions of QUnit</a>.
+</p>
+
+{{#with qunit.latestStable}}
+<ul>
+	{{include "qunit-release"}}
+</ul>
+{{/with}}
+
+<h2>PEP</h2>
+<p>
+	Showing the latest stable release for PEP.
+	<a href="/pep/">See all versions of PEP</a>.
+</p>
+
+{{#with pep.latestStable}}
+<ul>
+	{{include "pep-release"}}
+</ul>
+{{/with}}
