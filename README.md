@@ -29,7 +29,7 @@ To build a local container in deployment mode (redirecting any requests without 
 Note that you will need to keep track of `$CDN_ACCESS_KEY` and add it to the headers sent for origin pulls. To test whether this is working correctly, you can use `curl`:
 
 * This should always redirect to `code.jquery.com`: `curl -i localhost/jquery-3.1.1.js`
-* This should always deliver a copy of the file (don't forget to set the environment variable in your current shell): `curl -i -H "cdn-access: ${CDN_ACCESS_KEY}" localhost/jquery-3.1.1.js`
+* This should always deliver a copy of the file (don't forget to set the environment variable in your current shell): `curl -i -H "x-cdn-access: ${CDN_ACCESS_KEY}" localhost/jquery-3.1.1.js`
 
 ### Add support for `purge.php`
 
@@ -63,7 +63,7 @@ To deploy, first generate the CDN access key and locate the CDN API token and ac
   * `CDN_ACCESS_KEY=(Insert the value of $CDN_ACCESS_KEY here)`
   * `CDN_PURGE_API_TOKEN=(Insert the value of the API token here)`
   * `CDN_PURGE_ACCOUNT_HASH=(Insert the value of the account hash)`
-1. Create the magic header and the host header at the CDN: `cdn-access: (Insert the value of $CDN_ACCESS_KEY here)|Host: (insert URL to app container)`
+1. Create the magic header and the host header at the CDN: `x-cdn-access: (Insert the value of $CDN_ACCESS_KEY here)|Host: (insert URL to app container)`
 
 ## In case of emergency
 
