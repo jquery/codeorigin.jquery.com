@@ -1,7 +1,8 @@
 {
-	"url": "vagrant.codeorigin.jquery.com",
+	"url": "vagrant.releases.jquery.com",
 	"username": "admin",
 	"password": "secret",
+	"cdn_origin": "https://code.jquery.com",
 
 	"highwinds": {
 		"api_url": "https://striketracker.highwinds.com",
