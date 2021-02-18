@@ -1,9 +1,9 @@
 <li>
 	jQuery Mobile {{version}} -
-	<a href="/{{filename}}">uncompressed</a>,
-	<a href="/{{minified}}">minified</a>,
-	<a href="/{{minifiedCss}}">theme</a>
+	{{cdnSriLink filename "uncompressed"}},
+	{{cdnSriLink minified "minified"}},
+	{{cdnLink minifiedCss "theme"}}
 	{{#if minifiedStructure}}
-		(<a href="/{{minifiedStructure}}">structure only</a>)
+		({{cdnLink minifiedStructure "structure only"}})
 	{{/if}}
 </li>

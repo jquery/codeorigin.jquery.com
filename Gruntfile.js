@@ -304,9 +304,19 @@ grunt.registerTask( "build-index", function() {
 
 	var sriHashes = require( "./dist/resources/sri-directives.json" );
 
-	function href( file, label ) {
-		var sri = "sha256-" + sriHashes["@cdn/" + file]["hashes"]["sha256"];
-		return "<a class='open-sri-modal' href='/" + file + "' data-hash='" + sri + "'>" + label + "</a>";
+	function cdnSriLink( file, label ) {
+		var sri = "sha256-" + sriHashes[ `@cdn/${ file }` ].hashes.sha256,
+			cdnOrigin = grunt.config( "wordpress" ).cdn_origin;
+		return `<a
+			class='open-sri-modal'
+			href='${ cdnOrigin }/${ file }'
+			data-hash='${ sri }'
+		>${ label }</a>`;
+	}
+
+	function cdnLink( file, label ) {
+		var cdnOrigin = grunt.config( "wordpress" ).cdn_origin;
+		return `<a href='${ cdnOrigin }/${ file }'>${ label }</a>`;
 	}
 
 	Handlebars.registerHelper( "ifeq", function( v1, v2, options ) {
@@ -316,30 +326,48 @@ grunt.registerTask( "build-index", function() {
 		return options.inverse( this );
 	} );
 
-	Handlebars.registerHelper( "sriLink", function( file, label ) {
-		return new Handlebars.SafeString( href( file, label ) );
+	Handlebars.registerHelper( "cdnSriLink", function( file, label ) {
+		return new Handlebars.SafeString( cdnSriLink( file, label ) );
+	} );
+	Handlebars.registerHelper( "cdnLink", function( file, label ) {
+		return new Handlebars.SafeString( cdnLink( file, label ) );
+	} );
+
+	Handlebars.registerHelper( "concat2",function( p1, p2 ) {
+		return `${ p1 }${ p2 }`;
+	} );
+	Handlebars.registerHelper( "concat3",function( p1, p2, p3 ) {
+		return `${ p1 }${ p2 }${ p3 }`;
+	} );
+	Handlebars.registerHelper( "concat4",function( p1, p2, p3, p4 ) {
+		return `${ p1 }${ p2 }${ p3 }${ p4 }`;
+	} );
+	Handlebars.registerHelper( "concat5",function( p1, p2, p3, p4, p5 ) {
+		return `${ p1 }${ p2 }${ p3 }${ p4 }${ p5 }`;
 	} );
 
 	Handlebars.registerHelper( "release", function( prefix, release ) {
-		var html = prefix + " " + release.version + " - " + href( release.filename, "uncompressed" );
+		var html = prefix + " " + release.version + " - " + cdnSriLink( release.filename, "uncompressed" );
 		if ( release.minified ) {
-			html += ", " + href( release.minified, "minified" );
+			html += ", " + cdnSriLink( release.minified, "minified" );
 		}
 		if ( release.packed ) {
-			html += ", " + href( release.packed, "packed" );
+			html += ", " + cdnSriLink( release.packed, "packed" );
 		}
 		if ( release.slim ) {
-			html += ", " + href( release.slim, "slim" );
+			html += ", " + cdnSriLink( release.slim, "slim" );
 		}
 		if ( release.slimMinified ) {
-			html += ", " + href( release.slimMinified, "slim minified" );
+			html += ", " + cdnSriLink( release.slimMinified, "slim minified" );
 		}
 
 		return new Handlebars.SafeString( html );
 	} );
 
 	Handlebars.registerHelper( "uiTheme", function( release ) {
-		var url;
+		var url,
+			cdnOrigin = grunt.config( "wordpress" ).cdn_origin;
+
 		// TODO: link to minified theme if available
 		if ( release.themes.indexOf( "smoothness" ) !== -1 ) {
 			url = "smoothness/jquery-ui.css";
@@ -348,7 +376,7 @@ grunt.registerTask( "build-index", function() {
 		}
 
 		return new Handlebars.SafeString(
-			"<a href='/ui/" + release.version + "/themes/" + url + "'>theme</a>" );
+			`<a href='${ cdnOrigin }/ui/${ release.version }/themes/${ url }'>theme</a>` );
 	} );
 
 	Handlebars.registerHelper( "include", (function() {
