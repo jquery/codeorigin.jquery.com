@@ -11,10 +11,7 @@
  *     $ REQUEST_URI="/example" php purge.php
  */
 
-$configFile = __DIR__ . '/config.json';
-
 if ( !isset( $_SERVER[ 'REQUEST_URI' ] )
-	|| !is_readable( $configFile )
 	|| !function_exists( 'curl_init' )
 ) {
 	http_response_code( 500 );
@@ -22,24 +19,45 @@ if ( !isset( $_SERVER[ 'REQUEST_URI' ] )
 	exit;
 }
 
-$config = json_decode( file_get_contents( $configFile ) );
-$hwConfig = $config->highwinds;
-if ( !$hwConfig
-	|| !$hwConfig->api_url
-	|| !$hwConfig->api_token
-	|| !$hwConfig->account_hash
-	|| !$hwConfig->file_hostname
+// Highwinds StrikeTracker
+$striketrackerUrl = getenv( 'STRIKETRACKER_URL' ) ?: 'https://striketracker.highwinds.com';
+$striketrackerToken = getenv( 'STRIKETRACKER_TOKEN' ) ?: false;
+$striketrackerAccountHash = getenv( 'STRIKETRACKER_ACCOUNT' ) ?: false;
+// This is configurable because the purge script may be invoked
+// from a hostname different from the one canonically serving the asset,
+// or. e.g. from the CLI.
+$striketrackerPurgeHostname = getenv( 'STRIKETRACKER_PURGE_HOSTNAME' ) ?: 'code.jquery.com';
+
+if ( !$striketrackerUrl
+	|| !$striketrackerToken
+	|| !$striketrackerAccountHash
+	|| !$striketrackerPurgeHostname
 ) {
-	http_response_code( 500 );
-	echo "Configuration error.\n";
-	exit;
+	$configFile = __DIR__ . '/config.json';
+	$configJson = @file_get_contents( $configFile );
+	$config = $configJson ? json_decode( $configJson ) : false;
+	$hwConfig = $config ? $config->highwinds : false;
+	if ( !$hwConfig
+		|| !$hwConfig->api_url
+		|| !$hwConfig->api_token
+		|| !$hwConfig->account_hash
+		|| !$hwConfig->file_hostname
+	) {
+		http_response_code( 500 );
+		echo "Configuration error.\n";
+		exit;
+	}
+	$striketrackerUrl = $hwConfig->api_url;
+	$striketrackerToken = $hwConfig->api_token;
+	$striketrackerAccountHash = $hwConfig->account_hash;
+	$striketrackerPurgeHostname = $hwConfig->file_hostname;
 }
 
 // The StrikeTracker Purge API is protocol-sensitive.
 // HTTP and HTTPS need to be purged separately, or
 // we can use a protocol-relative file url, which Highwinds
 // supports as short-cut for purging both.
-$file = "//{$hwConfig->file_hostname}/" . ltrim( $_SERVER[ 'REQUEST_URI' ], '/' );
+$file = "//{$striketrackerPurgeHostname}/" . ltrim( $_SERVER[ 'REQUEST_URI' ], '/' );
 
 /**
  * Make an HTTP POST request, submitting JSON data, and receiving JSON data.
@@ -67,10 +85,10 @@ echo "Attempting to purge:\n{$file}\n\n";
 
 $result = jq_request_post_json(
 	// url
-	"{$hwConfig->api_url}/api/accounts/{$hwConfig->account_hash}/purge",
+	"{$striketrackerUrl}/api/accounts/{$striketrackerAccountHash}/purge",
 	// headers
 	array(
-		"Authorization: Bearer {$hwConfig->api_token}",
+		"Authorization: Bearer {$striketrackerToken}",
 		"Content-Type: application/json",
 	),
 	// post body (will be encoded as JSON)
