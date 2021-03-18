@@ -20,6 +20,6 @@
     "grunt-sri": "0.2.0",
     "handlebars": "4.7.7",
     "lodash": "4.17.21",
-    "semver": "7.3.2"
+    "semver": "7.3.4"
   }
 }
