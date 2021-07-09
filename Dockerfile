@@ -30,7 +30,7 @@ RUN if [ -n "$CDN_ACCESS_KEY" ]; then \
   fi
 
 # Load the releases into the container
-COPY cdn/* /usr/share/nginx/html/
+COPY cdn/ /usr/share/nginx/html/
 
 # Copy in a script to start php-fpm7
 COPY cfg/30-start-php-fpm7.sh /docker-entrypoint.d/
