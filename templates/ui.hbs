@@ -10,7 +10,7 @@
 		{{release "jQuery UI" latestStable}}
 		<h3>Themes</h3>
 		{{#each latestStable.themes}}
-			<a href="/ui/{{../latestStable/version}}/themes/{{this}}/jquery-ui.css">{{this}}</a>
+			{{cdnLink (concat5 "ui/" ../latestStable/version "/themes/" this "/jquery-ui.css") this}}
 		{{/each}}
 	{{/if}}
 	{{#if all.length}}
