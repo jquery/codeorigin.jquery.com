@@ -3,7 +3,9 @@
 
 This repo is used to build a Docker container that serves the codeorigin site for jQuery and related projects. It is designed to deploy easily, and includes a "break glass in case of emergency" minimal config mode should codeorigin need to be redeployed urgently.
 
-## Build a local copy
+It also contains the files necessary to build and deploy releases.jquery.com on a separate host, which provides an index of the files on codeorigin.
+
+## Build a local copy of codeorigin
 
 ### Default, no restrictions
 
@@ -68,6 +70,10 @@ To deploy, first generate the CDN access key and locate the CDN API token and ac
 ## In case of emergency
 
 If you need to deploy a codeorigin container immediately, or if there are origin pull failures and you're not sure why, deploy without setting the `CDN_ACCESS_KEY` environment variable. The codeorigin server will respond to all requests without redirecting non-origin pulls to the CDN, so this should be only used in case of emergencies.
+
+## Build the releases sites
+
+To build and deploy your changes for previewing in a [`jquery-wp-content`](https://github.com/jquery/jquery-wp-content) instance, follow the [workflow instructions](http://contribute.jquery.org/web-sites/#workflow) from our documentation on [contributing to jQuery web sites](http://contribute.jquery.org/web-sites/).
 
 ## Add or update project release files
 
