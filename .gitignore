@@ -1,4 +1,5 @@
 /node_modules/
 /dist/
+/resources/sri-directives.json
 /git/
 /config.js*
