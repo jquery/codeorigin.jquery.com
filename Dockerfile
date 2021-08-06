@@ -6,12 +6,6 @@ RUN apk add vim openrc
 # Define the environment variable that will be used in the origin pull magic header
 ARG CDN_ACCESS_KEY=''
 
-# Define the environment variables used by purge.php
-ARG CDN_PURGE_API_TOKEN=''
-ARG CDN_PURGE_ACCOUNT_HASH=''
-ENV CDN_PURGE_API_TOKEN=$CDN_PURGE_API_TOKEN
-ENV CDN_PURGE_ACCOUNT_HASH=$CDN_PURGE_ACCOUNT_HASH
-
 # Copy in the necessary config files
 COPY cfg/vimrc /etc/vim/vimrc
 COPY cfg/default.conf /etc/nginx/conf.d/default.conf
@@ -30,9 +24,6 @@ RUN if [ -n "$CDN_ACCESS_KEY" ]; then \
 
 # Load the releases into the container
 COPY cdn/ /usr/share/nginx/html/
-
-# Copy in a script to start php-fpm7
-COPY cfg/30-start-php-fpm7.sh /docker-entrypoint.d/
 
 EXPOSE 80
 
