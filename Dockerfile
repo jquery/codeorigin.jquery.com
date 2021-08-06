@@ -15,7 +15,6 @@ ENV CDN_PURGE_ACCOUNT_HASH=$CDN_PURGE_ACCOUNT_HASH
 # Copy in the necessary config files
 COPY cfg/vimrc /etc/vim/vimrc
 COPY cfg/default.conf /etc/nginx/conf.d/default.conf
-COPY cfg/purge.php /usr/share/nginx/html/
 
 # If the CDN_ACCESS_KEY environment variable is *not* set, operate in "break glass" mode where the
 # container responds to all requests. Otherwise, look for the secret header the CDN adds to origin
