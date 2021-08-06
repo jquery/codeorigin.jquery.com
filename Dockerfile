@@ -1,7 +1,7 @@
 FROM nginx:alpine
 
 # Install pre-reqs, since we're doing everything in one container for minimum complexity
-RUN apk add vim openrc php7 php7-fpm php7-openssl php7-curl php7-json
+RUN apk add vim openrc
 
 # Define the environment variable that will be used in the origin pull magic header
 ARG CDN_ACCESS_KEY=''
