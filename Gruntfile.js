@@ -467,12 +467,10 @@ grunt.registerTask( "reload-listings", function() {
 	} );
 } );
 
-grunt.registerTask( "sri-generate", ["ensure-dist-resources", "sri:generate"] );
-
 // The "grunt deploy" command is automatically invoked on git-commit by the server that
 // will deploy the WordPress site.
 // Task tree: "deploy" > "wordpress-deploy" > "build-wordpress" > "build".
-grunt.registerTask( "build", ["sri-generate", "build-index", "build-resources"] );
+grunt.registerTask( "build", ["sri:generate", "build-index", "build-resources"] );
 grunt.registerTask( "deploy", ["wordpress-deploy", "reload-listings"] );
 
 };
