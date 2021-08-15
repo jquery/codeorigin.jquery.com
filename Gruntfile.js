@@ -440,37 +440,10 @@ grunt.registerTask( "build-index", function() {
 		JSON.stringify( data, null, 2 ) );
 } );
 
-grunt.registerTask( "reload-listings", function() {
-	var done = this.async(),
-		host = "http://" + grunt.config( "wordpress" ).url,
-		paths = ["/", "/jquery/", "/ui/", "/mobile/", "/color/", "/qunit/", "/pep/"],
-		waiting = paths.length;
-
-	paths.forEach( function( path ) {
-		path = host + path;
-		http.get( path + "?reload", function( response ) {
-			if ( response.statusCode >= 400 ) {
-				grunt.log.error( "Error reloading " + path );
-				grunt.log.error( "Status code: " + response.statusCode );
-				return done( false );
-			}
-
-			grunt.log.writeln( "Successfully reloaded " + path );
-			if ( !--waiting ) {
-				done();
-			}
-		} ).on( "error", function( error ) {
-			grunt.log.error( "Error loading " + path );
-			grunt.log.error( error );
-			done( false );
-		} );
-	} );
-} );
-
 // The "grunt deploy" command is automatically invoked on git-commit by the server that
 // will deploy the WordPress site.
 // Task tree: "deploy" > "wordpress-deploy" > "build-wordpress" > "build".
 grunt.registerTask( "build", ["sri:generate", "build-index", "build-resources"] );
-grunt.registerTask( "deploy", ["wordpress-deploy", "reload-listings"] );
+grunt.registerTask( "deploy", ["wordpress-deploy"] );
 
 };
