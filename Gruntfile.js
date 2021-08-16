@@ -19,9 +19,24 @@ grunt.initConfig( {
 			],
 			options: {
 				algorithms: ["sha256"],
-				dest: "dist/resources/sri-directives.json"
+				dest: "resources/sri-directives.json"
 			}
 		}
+	},
+
+	wordpress: (function() {
+
+		// This fails with "Cannot find module" if the file does not exist
+		var config = require( "./config" );
+		config.dir = "dist/wordpress";
+		return config;
+	})(),
+
+	// This copies /resources/* to /dist/wordpress/resources/*,
+	// This is flattened (subpaths not preserved) to just base filenames,
+	// and then uploaded by "wordpress-deploy" to the web server.
+	"build-resources": {
+		all: "resources/**"
 	}
 } );
 
@@ -304,7 +319,7 @@ grunt.registerTask( "build-index", function() {
 		};
 	}
 
-	var sriHashes = require( "./dist/resources/sri-directives.json" );
+	var sriHashes = require( "./resources/sri-directives.json" );
 
 	function cdnSriLink( file, label ) {
 		var sri = "sha256-" + sriHashes[ `@cdn/${ file }` ].hashes.sha256,
@@ -420,55 +435,15 @@ grunt.registerTask( "build-index", function() {
 
 	grunt.file.write( "dist/wordpress/posts/page/pep.html",
 		Handlebars.compile( grunt.file.read( "templates/pep.hbs" ) )( data ) );
+
+	grunt.file.write( "dist/wordpress/resources/cdn.json",
+		JSON.stringify( data, null, 2 ) );
 } );
-
-grunt.registerTask( "reload-listings", function() {
-	var done = this.async(),
-		host = "http://" + grunt.config( "wordpress" ).url,
-		paths = ["/", "/jquery/", "/ui/", "/mobile/", "/color/", "/qunit/", "/pep/"],
-		waiting = paths.length;
-
-	paths.forEach( function( path ) {
-		path = host + path;
-		http.get( path + "?reload", function( response ) {
-			if ( response.statusCode >= 400 ) {
-				grunt.log.error( "Error reloading " + path );
-				grunt.log.error( "Status code: " + response.statusCode );
-				return done( false );
-			}
-
-			grunt.log.writeln( "Successfully reloaded " + path );
-			if ( !--waiting ) {
-				done();
-			}
-		} ).on( "error", function( error ) {
-			grunt.log.error( "Error loading " + path );
-			grunt.log.error( error );
-			done( false );
-		} );
-	} );
-} );
-
-grunt.registerTask( "ensure-dist-resources", function() {
-	grunt.file.mkdir( "dist/resources" );
-} );
-
-grunt.registerTask( "ensure-wordpress-config", function() {
-	// This will fail with "Cannot find module" if the file
-	// does not exist
-	var config = require( "./config" );
-	config.dir = "dist/wordpress";
-	grunt.config.merge( {
-		wordpress: config
-	} );
-} );
-
-grunt.registerTask( "sri-generate", ["ensure-dist-resources", "sri:generate"] );
 
 // The "grunt deploy" command is automatically invoked on git-commit by the server that
 // will deploy the WordPress site.
 // Task tree: "deploy" > "wordpress-deploy" > "build-wordpress" > "build".
-grunt.registerTask( "build", ["sri-generate", "build-index"] );
-grunt.registerTask( "deploy", ["ensure-wordpress-config", "wordpress-deploy", "reload-listings"] );
+grunt.registerTask( "build", ["sri:generate", "build-index", "build-resources"] );
+grunt.registerTask( "deploy", ["wordpress-deploy"] );
 
 };

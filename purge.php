@@ -8,56 +8,53 @@
  *
  * Test Plan:
  *
- *     $ REQUEST_URI="/example" php purge.php
+ *     $ STRIKETRACKER_TOKEN='*' STRIKETRACKER_ACCOUNT='*' PURGE_URI='/example' php purge.php
  */
 
-if ( !isset( $_SERVER[ 'REQUEST_URI' ] )
-	|| !function_exists( 'curl_init' )
-) {
+if ( !function_exists( 'curl_init' ) ) {
 	http_response_code( 500 );
 	echo "Context error.\n";
 	exit;
 }
 
+// Use a map to validate values and as indirection to ensure trivial bugs
+// can't result in a user-supplied string getting used.
+$purgeHostnames = [
+	'code' => 'code.jquery.com',
+	'releases' => 'releases.jquery.com',
+];
+
 // Highwinds StrikeTracker
 $striketrackerUrl = getenv( 'STRIKETRACKER_URL' ) ?: 'https://striketracker.highwinds.com';
 $striketrackerToken = getenv( 'STRIKETRACKER_TOKEN' ) ?: false;
 $striketrackerAccountHash = getenv( 'STRIKETRACKER_ACCOUNT' ) ?: false;
-// This is configurable because the purge script may be invoked
-// from a hostname different from the one canonically serving the asset,
-// or. e.g. from the CLI.
-$striketrackerPurgeHostname = getenv( 'STRIKETRACKER_PURGE_HOSTNAME' ) ?: 'code.jquery.com';
+
+// The purge script is generally not called from a purgable site, so the current request
+// is unlikely to be on the purgable site itself (e.g. some origin server instead of the
+// public hostname). As such, take the target site as input. This also allows the same
+// script to be used for multiple sites.
+$purgeSite = getenv( 'PURGE_SITE' ) ?: @$_GET['site'] ?: 'releases';
+$striketrackerPurgeHostname = @$purgeHostnames[$purgeSite] ?: false;
+
+$purgeUri = getenv( 'PURGE_URI' ) ?: @$_GET['uri'] ?: false;
 
 if ( !$striketrackerUrl
 	|| !$striketrackerToken
 	|| !$striketrackerAccountHash
 	|| !$striketrackerPurgeHostname
+	|| !$purgeUri
 ) {
-	$configFile = __DIR__ . '/config.json';
-	$configJson = @file_get_contents( $configFile );
-	$config = $configJson ? json_decode( $configJson ) : false;
-	$hwConfig = $config ? $config->highwinds : false;
-	if ( !$hwConfig
-		|| !$hwConfig->api_url
-		|| !$hwConfig->api_token
-		|| !$hwConfig->account_hash
-		|| !$hwConfig->file_hostname
-	) {
-		http_response_code( 500 );
-		echo "Configuration error.\n";
-		exit;
-	}
-	$striketrackerUrl = $hwConfig->api_url;
-	$striketrackerToken = $hwConfig->api_token;
-	$striketrackerAccountHash = $hwConfig->account_hash;
-	$striketrackerPurgeHostname = $hwConfig->file_hostname;
+
+	http_response_code( 400 );
+	echo "Configuration error.\n";
+	exit;
 }
 
 // The StrikeTracker Purge API is protocol-sensitive.
 // HTTP and HTTPS need to be purged separately, or
 // we can use a protocol-relative file url, which Highwinds
 // supports as short-cut for purging both.
-$file = "//{$striketrackerPurgeHostname}/" . ltrim( $_SERVER[ 'REQUEST_URI' ], '/' );
+$file = "//{$striketrackerPurgeHostname}/" . ltrim( $purgeUri, '/' );
 
 /**
  * Make an HTTP POST request, submitting JSON data, and receiving JSON data.
@@ -80,6 +77,7 @@ function jq_request_post_json( $url, array $headers, array $postData ) {
 }
 
 header( 'Content-Type: text/plain' );
+header( 'Cache-Control: private, no-cache, must-revalidate' );
 header( 'X-Content-Type-Options: nosniff' );
 echo "Attempting to purge:\n{$file}\n\n";
 
