@@ -36,7 +36,7 @@ $striketrackerAccountHash = getenv( 'STRIKETRACKER_ACCOUNT' ) ?: false;
 $purgeSite = getenv( 'PURGE_SITE' ) ?: @$_GET['site'] ?: 'releases';
 $striketrackerPurgeHostname = @$purgeHostnames[$purgeSite] ?: false;
 
-$purgeUri = getenv( 'PURGE_URI' ) ?: @$_GET['uri'] ?: @$_SERVER['REQUEST_URI'] ?: false;
+$purgeUri = getenv( 'PURGE_URI' ) ?: @$_GET['uri'] ?: false;
 
 if ( !$striketrackerUrl
 	|| !$striketrackerToken
