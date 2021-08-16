@@ -77,6 +77,7 @@ function jq_request_post_json( $url, array $headers, array $postData ) {
 }
 
 header( 'Content-Type: text/plain' );
+header( 'Cache-Control: private, no-cache, must-revalidate' );
 header( 'X-Content-Type-Options: nosniff' );
 echo "Attempting to purge:\n{$file}\n\n";
 
