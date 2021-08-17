@@ -1,55 +1,76 @@
-# Official project releases
+codeorigin.jquery.com
 =====================
 
-This repo is used to build a Docker container that serves the codeorigin site for jQuery and related projects. It is designed to deploy easily, and includes a "break glass in case of emergency" minimal config mode should codeorigin need to be redeployed urgently.
+## Add new assets
 
-It also contains the files necessary to build and deploy releases.jquery.com on a separate host, which provides an index of the files on codeorigin.
+To publish a new release, project maintainers should commit new assets to the `cdn/` directory and push to the `main` branch. The jQuery CDN (code.jquery.com) and releases site (releases.jquery.com) will both automatically rebuild.
 
-## Build a local copy of codeorigin
+-------
 
-### Default, no restrictions (development or emergency mode)
+## jQuery CDN
 
-To build a local container (defaults to "break glass" mode):
+The jQuery CDN assets are served from a static file server (Nginx), provisioned through Docker.
 
-1. Install Docker
-1. Clone this repo, and `cd` into it
-1. Build the image: `docker build -t releases ./`
-1. Run the container, exposing port 80: `docker run -p 127.0.0.1:80:80/tcp releases`
-1. To exit the container, press `ctrl+c`
+Prerequisites:
+* Docker (see [Docker CE for Linux](https://docs.docker.com/install/#server), [Docker for Mac](https://hub.docker.com/editions/community/docker-ce-desktop-mac), or [Docker for Windows](https://docs.docker.com/docker-for-windows/install/)).
+* Git.
 
-### Redirect non-origin pulls to CDN (production mode)
+### Local development
 
-To build a local container in deployment mode (redirecting any requests without the magic header that indicates an origin pull), build the container with the header value in an environment variable:
+**Test the container**:
 
-1. Install Docker
-1. Clone this repo, and `cd` into it
-1. Generate a random string for the environment variable: ``CDN_ACCESS_KEY=`openssl rand -hex 32` ``
-1. Build the image: `docker build -t prod-releases --build-arg CDN_ACCESS_KEY=$CDN_ACCESS_KEY ./`
-1. Run the container, exposing port 80: `docker run -p 127.0.0.1:80:80/tcp prod-releases`
-1. To exit the container, press `ctrl+c`
+1. Build the image, by running in a clone of this repo:
+   `docker build -t codeorigin-dev ./`
+1. Start a container, exposing port 80:
+   `docker run --rm -p 4000:80/tcp codeorigin-dev`
+1. The site is now running at <http://localhost:4000/jquery-3.0.0.js>.
+   To stop the container, press `ctrl+c`
 
-Note that you will need to keep track of `$CDN_ACCESS_KEY` and add it to the headers sent for origin pulls. To test whether this is working correctly, you can use `curl`:
+**Inspect the container**:
 
-* This should always redirect to `code.jquery.com`: `curl -i localhost/jquery-3.1.1.js`
-* This should always deliver a copy of the file (don't forget to set the environment variable in your current shell): `curl -i -H "x-cdn-access: ${CDN_ACCESS_KEY}" localhost/jquery-3.1.1.js`
+Run it with a shell entrypoint and set interactive/tty mode by adding the parameters `-i -t --entrypoint /bin/sh`.
+Note that when inspecting the container, nginx will not be started.
 
-## Build the production site
+```
+docker run --rm -p 4000:80/tcp -i -t --entrypoint /bin/sh codeorigin-dev
+```
 
-To deploy, first generate the CDN access key. Next, you'll need to configure the container host to build from the Dockerfile in this repository, and use the CDN access key as build arguments. Finally, you'll configure the CDN to send both the Host header and the access key during origin pulls.
+**Debug nginx**:
 
-1. Generate the access key: ``CDN_ACCESS_KEY=`openssl rand -hex 16` ``
-1. Configure the container host to build from this repo, and set this build variable:
-  * `CDN_ACCESS_KEY=(Insert the value of $CDN_ACCESS_KEY here)`
-1. Add the magic header and the host header at the CDN for origin pulls: `x-cdn-access: (Insert the value of $CDN_ACCESS_KEY here)|Host: (insert URL to app container)`
+In `cfg/defualt.cong`, change `error_log … crit` to `error_log … debug` and then build+run as usual.
 
-## In case of emergency
+**Test the container in restricted mode**:
 
-If you need to deploy a codeorigin container immediately, or if there are origin pull failures and you're not sure why, deploy the container without configuring the `CDN_ACCESS_KEY` environment variable. The codeorigin server will respond to all requests without redirecting non-origin pulls to the CDN, so this should be only used in case of emergencies.
+There is a restricted mode, which responds to unauthorized static file requests with a redirect instead of serving files.
 
-## Build the releases sites
+1. Run `export CDN_ACCESS_KEY="$(openssl rand -hex 32)"`
+1. Build the image, by running in a clone of this repo:
+   `docker build -t codeorigin-strict --build-arg "CDN_ACCESS_KEY=$CDN_ACCESS_KEY" ./`
+1. Start a container, exposing port 80:
+   `docker run --rm -p 4000:80/tcp codeorigin-strict`
+1. The site is now running at <http://localhost:4000/jquery-3.0.0.js>.
+   To stop the container, press `ctrl+c`
 
-To build and deploy your changes for previewing in a [`jquery-wp-content`](https://github.com/jquery/jquery-wp-content) instance, follow the [workflow instructions](http://contribute.jquery.org/web-sites/#workflow) from our documentation on [contributing to jQuery web sites](http://contribute.jquery.org/web-sites/).
+In the restricted mode:
 
-## Add or update project release files
+* Simple requests for static files redirect to `code.jquery.com/*`, e.g. `curl -i 'http://localhost/jquery-3.0.0.js'`.
+* Requests with the access key will respond by serving the file: `curl -i -H "x-cdn-access: $CDN_ACCESS_KEY" 'http://localhost/jquery-3.0.0.js'`
+* Requests with an invalid key will redirect the same as without: `curl -i -H "x-cdn-access: wrong" 'http://localhost/jquery-3.0.0.js'`
 
-To add a new release or update an existing one, simply commit the new file to the `cdn` directory and merge to the `main` branch. The container will rebuild automatically.
+### Production deployment
+
+1. First, generate a CDN access key: `openssl rand -hex 32`.
+1. At a hosting platform of your choosing, build a container from the Dockerfile in this repository, and pass the CDN access key as build arguments.
+1. Finally, configure the CDN to use the container address as its origin, with special handling to augment origin pulls with a `Host: code.jquery.com` header, and a `x-cdn-access` header with the access key.
+
+### In case of emergency
+
+If you need to deploy a standalone codeorigin site immediately, or if there are origin pull failures and you're not sure why, then deploy the container without any `CDN_ACCESS_KEY` environment variable. The codeorigin container then default to its unrestricted mode (no offload redirects).
+
+-------
+
+## WordPress build
+
+This repository is also used to update the asset catalog at <https://releases.jquery.com/>, which is an auto-generated WordPress site.
+
+To preview changes for a [`jquery-wp-content`](https://github.com/jquery/jquery-wp-content) instance, follow the [workflow instructions](http://contribute.jquery.org/web-sites/#workflow) from our documentation on [contributing to jQuery Foundation web sites](http://contribute.jquery.org/web-sites/).
