@@ -176,9 +176,16 @@ function jq_req( $url ) {
 			return $len;
 		},
 	] );
-	$resp['body'] = curl_exec( $ch );
-	curl_close( $ch );
-	return $resp;
+	try {
+		$ret = curl_exec( $ch );
+		if ( $ret === false ) {
+			throw new Exception( curl_error( $ch ) );
+		}
+		$resp['body'] = $ret;
+		return $resp;
+	} finally {
+		curl_close( $ch );
+	}
 }
 
 class Unit {
@@ -186,6 +193,7 @@ class Unit {
 	static $pass = true;
 
 	public static function start() {
+		error_reporting( E_ALL );
 		print "TAP version 13\n";
 	}
 
@@ -202,9 +210,13 @@ class Unit {
 	}
 
 	public static function testHttp( $server, $path, array $expectHeaders, $expectBody = null ) {
-		$resp = jq_req( "http://{$server}{$path}" );
-		foreach ( $expectHeaders as $key => $val ) {
-			self::test( "GET $path > header $key", @$resp['headers'][$key], $val );
+		try {
+			$resp = jq_req( "http://{$server}{$path}" );
+			foreach ( $expectHeaders as $key => $val ) {
+				self::test( "GET $path > header $key", @$resp['headers'][$key], $val );
+			}
+		} catch ( Exception $e ) {
+			self::test( "GET $path > error", $e->getMessage(), null );
 		}
 	}
 
