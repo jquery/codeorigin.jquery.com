@@ -8,7 +8,7 @@ on:
   pull_request:
 
 jobs:
-  docker-test:
+  docker-test-dev:
     # Includes PHP 7.4, Python 3, Node 14
     # https://github.com/actions/virtual-environments/blob/ubuntu20/20210816.1/images/linux/Ubuntu2004-README.md
     runs-on: ubuntu-20.04
@@ -26,6 +26,22 @@ jobs:
           # once GitHub's images come with curl 7.71.0+, use --retry-all-errors
           # instead of hardcoded sleep. --krinkle 2021-08-21
           sleep 1
-          curl -f --retry 5 --retry-delay 1 --retry-connrefused http://127.0.0.1:4000/jquery-3.0.0.js > /dev/null
-          curl -I http://127.0.0.1:4000/jquery-3.0.0.js
-          php test/cfg-test.php
+          curl -f --retry 5 --retry-delay 1 --retry-connrefused -I http://127.0.0.1:4000/jquery-3.0.0.js
+          php test/static-dev.php
+
+  docker-test-strict:
+    runs-on: ubuntu-20.04
+    env:
+      CDN_ACCESS_KEY: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build the image
+        run: docker build -t codeorigin-strict:$GITHUB_SHA --build-arg "CDN_ACCESS_KEY=$CDN_ACCESS_KEY" ./
+
+      - name: Test the container
+        run: |
+          docker run --rm -p 4000:80/tcp --detach codeorigin-strict:$GITHUB_SHA
+          sleep 1
+          curl -f --retry 5 --retry-delay 1 --retry-connrefused -I http://127.0.0.1:4000/jquery-3.0.0.js
+          php test/static-strict.php
