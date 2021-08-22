@@ -1,14 +1,11 @@
 name: CI
 on:
-  # Manually
   workflow_dispatch:
-  # Note that we deploy regularly from main.
-  # To test ahead of time, push to a new branch first, or open a PR.
   push:
   pull_request:
 
 jobs:
-  docker-test-dev:
+  docker-test:
     # Includes PHP 7.4, Python 3, Node 14
     # https://github.com/actions/virtual-environments/blob/ubuntu20/20210816.1/images/linux/Ubuntu2004-README.md
     runs-on: ubuntu-20.04
@@ -16,32 +13,25 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build the image
-        run: docker build -t codeorigin-dev:$GITHUB_SHA ./
+        run: docker build -t codeorigin ./
 
-      - name: Test the container
+      - name: Test the container in open mode
         run: |
-          docker run --rm -p 4000:80/tcp --detach codeorigin-dev:$GITHUB_SHA
+          docker run --rm -p 4000:80/tcp --detach codeorigin
           # The first error is "Empty reply from server", which curl
           # considers an HTTP failure rather than a connection or network failure.
           # once GitHub's images come with curl 7.71.0+, use --retry-all-errors
           # instead of hardcoded sleep. --krinkle 2021-08-21
-          sleep 1
-          curl -f --retry 5 --retry-delay 1 --retry-connrefused -I http://127.0.0.1:4000/jquery-3.0.0.js
-          php test/static-dev.php
+          sleep 2
+          curl -f --retry 5 --retry-delay 1 --retry-connrefused -I http://localhost:4000/jquery-3.0.0.js
+          php test/static-open.php
+          docker kill $(docker ps -q -f ancestor=codeorigin)
 
-  docker-test-strict:
-    runs-on: ubuntu-20.04
-    env:
-      CDN_ACCESS_KEY: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Build the image
-        run: docker build -t codeorigin-strict:$GITHUB_SHA --build-arg "CDN_ACCESS_KEY=$CDN_ACCESS_KEY" ./
-
-      - name: Test the container
+      - name: Test the container in strict mode
+        env:
+          CDN_ACCESS_KEY: aaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbccccccccccccccccdddddddddddddddd
         run: |
-          docker run --rm -p 4000:80/tcp --detach codeorigin-strict:$GITHUB_SHA
-          sleep 1
-          curl -f --retry 5 --retry-delay 1 --retry-connrefused -I http://127.0.0.1:4000/jquery-3.0.0.js
+          docker run --rm -p 4000:80/tcp -e "CDN_ACCESS_KEY=$CDN_ACCESS_KEY" --detach codeorigin
+          sleep 2
+          curl -f --retry 5 --retry-delay 1 --retry-connrefused -I http://localhost:4000/jquery-3.0.0.js
           php test/static-strict.php

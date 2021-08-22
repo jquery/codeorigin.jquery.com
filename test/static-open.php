@@ -2,9 +2,9 @@
 /**
  * Usage:
  *
- *     $ php test/static-dev.php
+ *     $ php test/static-open.php
  *
- *     $ php test/static-dev.php "localhost:4000"
+ *     $ php test/static-open.php "localhost:4000"
  */
 
 require_once __DIR__ . '/Unit.php';
@@ -74,6 +74,25 @@ Unit::testHttp( $server, '/jquery-2.0.0.min.map', [], [
 	'last-modified' => 'Fri, 18 Oct 1991 12:00:00 GMT',
 	'connection' => 'keep-alive',
 	'etag' => '"28feccc0-1ec81"',
+	'expires' => 'Thu, 31 Dec 2037 23:55:55 GMT',
+	'cache-control' => 'max-age=315360000, public, no-transform',
+	'access-control-allow-origin' => '*',
+	'accept-ranges' => 'bytes',
+] );
+
+// Static asset with a key when no key is required
+
+Unit::testHttp( $server, '/jquery-3.0.0.js', [
+	"x-cdn-access: there-is-no-spoon"
+], [
+	'status' => '200 OK',
+	'server' => 'nginx',
+	'content-type' => 'application/javascript; charset=utf-8',
+	'content-length' => '263268',
+	'last-modified' => 'Fri, 18 Oct 1991 12:00:00 GMT',
+	'connection' => 'keep-alive',
+	'vary' => 'Accept-Encoding, x-cdn-access',
+	'etag' => '"28feccc0-40464"',
 	'expires' => 'Thu, 31 Dec 2037 23:55:55 GMT',
 	'cache-control' => 'max-age=315360000, public, no-transform',
 	'access-control-allow-origin' => '*',

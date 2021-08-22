@@ -27,7 +27,7 @@ Unit::testHttp( $server, '/', [], [
 	'location' => 'https://releases.jquery.com/',
 ] );
 
-// Static asset with key
+// Static asset with correct key
 
 Unit::testHttp( $server, '/jquery-3.0.0.js', [
 	"x-cdn-access: $key"
@@ -46,10 +46,23 @@ Unit::testHttp( $server, '/jquery-3.0.0.js', [
 	'accept-ranges' => 'bytes',
 ] );
 
-// Static asset without key
+// Reroute asset without key
 
 Unit::testHttp( $server, '/jquery-3.0.0.js', [], [
-	'status' => '301 Moved Permanently',
+	'status' => '302 Moved Temporarily',
+	'server' => 'nginx',
+	'location' => 'https://code.jquery.com/jquery-3.0.0.js',
+	'vary' => 'x-cdn-access',
+	'cache-control' => 'max-age=300, public, no-transform',
+	'access-control-allow-origin' => '*',
+] );
+
+// Reroute asset with incorrect key
+
+Unit::testHttp( $server, '/jquery-3.0.0.js', [
+	"x-cdn-access: there-is-no-spoon"
+], [
+	'status' => '302 Moved Temporarily',
 	'server' => 'nginx',
 	'location' => 'https://code.jquery.com/jquery-3.0.0.js',
 	'vary' => 'x-cdn-access',
