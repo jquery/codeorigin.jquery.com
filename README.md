@@ -56,7 +56,7 @@ docker run --rm -p 4000:80/tcp -e "CDN_ACCESS_KEY=$CDN_ACCESS_KEY" -it --entrypo
 
 **Debug nginx**:
 
-In `cfg/defualt.conf`, change `error_log … crit` to `error_log … debug` and then build+run as usual.
+In `cfg/default.conf`, change `error_log … crit` to `error_log … debug` and then build+run as usual.
 
 **Test the container in restricted mode**:
 
