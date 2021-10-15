@@ -32,7 +32,7 @@ Unit::testHttp( $server, '/jquery-3.0.0.js', [], [
 	'vary' => 'Accept-Encoding, x-cdn-access',
 	'etag' => '"28feccc0-40464"',
 	'expires' => 'Thu, 31 Dec 2037 23:55:55 GMT',
-	'cache-control' => 'max-age=315360000, public, no-transform',
+	'cache-control' => 'max-age=315360000, public',
 	'access-control-allow-origin' => '*',
 	'accept-ranges' => 'bytes',
 ] );
@@ -47,7 +47,7 @@ Unit::testHttp( $server, '/qunit/qunit-2.0.0.css', [], [
 	'vary' => 'Accept-Encoding, x-cdn-access',
 	'etag' => '"28feccc0-1d20"',
 	'expires' => 'Thu, 31 Dec 2037 23:55:55 GMT',
-	'cache-control' => 'max-age=315360000, public, no-transform',
+	'cache-control' => 'max-age=315360000, public',
 	'access-control-allow-origin' => '*',
 	'accept-ranges' => 'bytes',
 ] );
@@ -61,7 +61,7 @@ Unit::testHttp( $server, '/ui/1.10.0/themes/base/images/ui-icons_222222_256x240.
 	'connection' => 'keep-alive',
 	'etag' => '"28feccc0-1111"',
 	'expires' => 'Thu, 31 Dec 2037 23:55:55 GMT',
-	'cache-control' => 'max-age=315360000, public, no-transform',
+	'cache-control' => 'max-age=315360000, public',
 	'access-control-allow-origin' => '*',
 	'accept-ranges' => 'bytes',
 ] );
@@ -75,7 +75,7 @@ Unit::testHttp( $server, '/jquery-2.0.0.min.map', [], [
 	'connection' => 'keep-alive',
 	'etag' => '"28feccc0-1ec81"',
 	'expires' => 'Thu, 31 Dec 2037 23:55:55 GMT',
-	'cache-control' => 'max-age=315360000, public, no-transform',
+	'cache-control' => 'max-age=315360000, public',
 	'access-control-allow-origin' => '*',
 	'accept-ranges' => 'bytes',
 ] );
@@ -94,7 +94,7 @@ Unit::testHttp( $server, '/jquery-3.0.0.js', [
 	'vary' => 'Accept-Encoding, x-cdn-access',
 	'etag' => '"28feccc0-40464"',
 	'expires' => 'Thu, 31 Dec 2037 23:55:55 GMT',
-	'cache-control' => 'max-age=315360000, public, no-transform',
+	'cache-control' => 'max-age=315360000, public',
 	'access-control-allow-origin' => '*',
 	'accept-ranges' => 'bytes',
 ] );
