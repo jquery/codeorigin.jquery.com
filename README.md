@@ -5,8 +5,6 @@ codeorigin.jquery.com
 
 To publish a new release, project maintainers should commit new assets to the `cdn/` directory and push to the `main` branch. The jQuery CDN (code.jquery.com) and releases site (releases.jquery.com) will both automatically rebuild.
 
--------
-
 ## jQuery CDN
 
 The jQuery CDN assets are served from a static file server (Nginx), provisioned through Docker.
