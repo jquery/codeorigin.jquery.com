@@ -9,6 +9,9 @@ function jq_req( $url, array $reqHeaders = [] ) {
 		CURLOPT_RETURNTRANSFER => 1,
 		CURLOPT_FOLLOWLOCATION => 0,
 		CURLOPT_HEADERFUNCTION => function( $ch, $header ) use ( &$resp ) {
+			$caseInsensitiveHeaders = [
+				'connection'
+			];
 			$len = strlen( $header );
 			if ( preg_match( "/^(HTTP\/(?:1\.[01]|2)) (\d{3} .*)/", $header, $m ) ) {
 				$resp['headers'] = [];
@@ -18,6 +21,9 @@ function jq_req( $url, array $reqHeaders = [] ) {
 				if ( count( $parts ) === 2 ) {
 					$name = strtolower( $parts[0] );
 					$val = trim( $parts[1] );
+					if ( in_array( $name, $caseInsensitiveHeaders ) ) {
+						$val = strtolower( $val );
+					}
 					if ( isset( $resp['headers'][$name] ) ) {
 						$resp['headers'][$name] .= ", $val";
 					} else {

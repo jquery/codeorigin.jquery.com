@@ -40,7 +40,6 @@ Unit::testHttp( $server, '/jquery-3.0.0.js', [
 	'connection' => 'keep-alive',
 	'vary' => 'Accept-Encoding, x-cdn-access',
 	'etag' => '"28feccc0-40464"',
-	'expires' => 'Thu, 31 Dec 2037 23:55:55 GMT',
 	'cache-control' => 'max-age=315360000, public',
 	'access-control-allow-origin' => '*',
 	'accept-ranges' => 'bytes',
