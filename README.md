@@ -90,4 +90,4 @@ If you need to deploy a standalone codeorigin site immediately, or if there are 
 
 This repository is also used to update the asset catalog at <https://releases.jquery.com/>, which is an auto-generated WordPress site.
 
-To preview changes for a [`jquery-wp-content`](https://github.com/jquery/jquery-wp-content) instance, follow the [workflow instructions](http://contribute.jquery.org/web-sites/#workflow) from our documentation on [contributing to jQuery Foundation web sites](http://contribute.jquery.org/web-sites/).
+To preview changes for a [`jquery-wp-content`](https://github.com/jquery/jquery-wp-content) instance, follow the [workflow instructions](http://contribute.jquery.org/web-sites/#workflow) from our documentation on [contributing to jQuery Foundation web sites](https://contribute.jquery.org/web-sites/).
