@@ -15,7 +15,7 @@ jobs:
       - name: Build the image
         run: docker build -t codeorigin ./
 
-      - name: Test the container in open mode
+      - name: Test the container
         run: |
           docker run --rm -p 4000:80/tcp --detach codeorigin
           # The first error is "Empty reply from server", which curl
@@ -24,14 +24,5 @@ jobs:
           # instead of hardcoded sleep. --krinkle 2021-08-21
           sleep 2
           curl -f --retry 5 --retry-delay 1 --retry-connrefused -I http://localhost:4000/jquery-3.0.0.js
-          php test/static-open.php
+          php test/CodeoriginTest.php
           docker kill $(docker ps -q -f ancestor=codeorigin)
-
-      - name: Test the container in strict mode
-        env:
-          CDN_ACCESS_KEY: aaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbccccccccccccccccdddddddddddddddd
-        run: |
-          docker run --rm -p 4000:80/tcp -e "CDN_ACCESS_KEY=$CDN_ACCESS_KEY" --detach codeorigin
-          sleep 2
-          curl -f --retry 5 --retry-delay 1 --retry-connrefused -I http://localhost:4000/jquery-3.0.0.js
-          php test/static-strict.php

@@ -2,9 +2,11 @@
 /**
  * Usage:
  *
- *     $ php test/static-open.php
+ *     $ php test/CodeoriginTest.php
  *
- *     $ php test/static-open.php "localhost:4000"
+ *     $ php test/CodeoriginTest.php "localhost:4000"
+ *
+ *     $ php test/CodeoriginTest.php "code.jquery.com"
  */
 
 require_once __DIR__ . '/Unit.php';
@@ -29,7 +31,7 @@ Unit::testHttp( $server, '/jquery-3.0.0.js', [], [
 	'content-length' => '263268',
 	'last-modified' => 'Fri, 18 Oct 1991 12:00:00 GMT',
 	'connection' => 'keep-alive',
-	'vary' => 'Accept-Encoding, x-cdn-access',
+	'vary' => 'Accept-Encoding',
 	'etag' => '"28feccc0-40464"',
 	'cache-control' => 'max-age=315360000, public',
 	'access-control-allow-origin' => '*',
@@ -43,7 +45,7 @@ Unit::testHttp( $server, '/qunit/qunit-2.0.0.css', [], [
 	'content-length' => '7456',
 	'last-modified' => 'Fri, 18 Oct 1991 12:00:00 GMT',
 	'connection' => 'keep-alive',
-	'vary' => 'Accept-Encoding, x-cdn-access',
+	'vary' => 'Accept-Encoding',
 	'etag' => '"28feccc0-1d20"',
 	'cache-control' => 'max-age=315360000, public',
 	'access-control-allow-origin' => '*',
@@ -76,7 +78,7 @@ Unit::testHttp( $server, '/jquery-2.0.0.min.map', [], [
 	'accept-ranges' => 'bytes',
 ] );
 
-// Static asset with a key when no key is required
+// Static asset
 
 Unit::testHttp( $server, '/jquery-3.0.0.js', [
 	"x-cdn-access: there-is-no-spoon"
@@ -87,7 +89,7 @@ Unit::testHttp( $server, '/jquery-3.0.0.js', [
 	'content-length' => '263268',
 	'last-modified' => 'Fri, 18 Oct 1991 12:00:00 GMT',
 	'connection' => 'keep-alive',
-	'vary' => 'Accept-Encoding, x-cdn-access',
+	'vary' => 'Accept-Encoding',
 	'etag' => '"28feccc0-40464"',
 	'cache-control' => 'max-age=315360000, public',
 	'access-control-allow-origin' => '*',

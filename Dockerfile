@@ -34,10 +34,6 @@ COPY cdn/ /var/www/cdn/
 #
 RUN find /var/www/cdn/ -type f -print0 | TZ=UTC xargs -0 -P 4 -n 50 touch --date='1991-10-18 12:00:00' {} +
 
-# Define the environment variable that will be used in the origin pull magic header
-# Set this via `docker run`
-ENV CDN_ACCESS_KEY=''
-
 # Copy in the necessary config files
 COPY cfg/vimrc /etc/vim/vimrc
 COPY cfg/default.conf /etc/nginx/templates/default.conf.template

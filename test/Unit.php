@@ -1,5 +1,12 @@
 <?php
 
+// Support: PHP < 8.0
+if ( !function_exists( 'str_starts_with' ) ) {
+	function str_starts_with( $haystack, $needle ) {
+		return strpos( $haystack, $needle ) === 0;
+	}
+}
+
 function jq_req( $url, array $reqHeaders = [] ) {
 	print "# $url\n";
 	$ch = curl_init( $url );
@@ -71,6 +78,17 @@ class Unit {
 		try {
 			$resp = jq_req( "http://{$server}{$path}", $reqHeaders );
 			foreach ( $expectHeaders as $key => $val ) {
+				// Tolerate E-Tag weakning (which Highwinds CDN does)
+				if ( $key == 'etag' ) {
+					$actualVal = @$resp['headers'][$key];
+					if ( $val !== $actualVal && $actualVal === "W/$val" ) {
+						$val = "W/$val";
+					}
+					if ( $val !== $actualVal && $val === "W/$actualVal" ) {
+						$actualVal = "W/$actualVal";
+					}
+				}
+
 				self::test( "GET $path > header $key", @$resp['headers'][$key], $val );
 			}
 		} catch ( Exception $e ) {
