@@ -67,7 +67,7 @@ class Unit {
 		}
 	}
 
-	public static function testHttp( $server, $path, array $reqHeaders = [], array $expectHeaders, $expectBody = null ) {
+	public static function testHttp( $server, $path, array $reqHeaders, array $expectHeaders, $expectBody = null ) {
 		try {
 			$resp = jq_req( "http://{$server}{$path}", $reqHeaders );
 			foreach ( $expectHeaders as $key => $val ) {
