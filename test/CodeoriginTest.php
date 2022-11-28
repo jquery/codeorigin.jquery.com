@@ -4,13 +4,14 @@
  *
  *     $ php test/CodeoriginTest.php
  *
- *     $ php test/CodeoriginTest.php "localhost:4000"
+ *     $ php test/CodeoriginTest.php "http://localhost:4000"
  *
- *     $ php test/CodeoriginTest.php "code.jquery.com"
+ *     $ php test/CodeoriginTest.php "http://code.jquery.com"
+ *     $ php test/CodeoriginTest.php "https://code.jquery.com"
  */
 
 require_once __DIR__ . '/Unit.php';
-$server = @$argv[1] ?: 'localhost:4000';
+$server = @$argv[1] ?: 'http://localhost:4000';
 
 Unit::start();
 
