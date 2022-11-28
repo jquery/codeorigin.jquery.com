@@ -76,7 +76,7 @@ class Unit {
 
 	public static function testHttp( $server, $path, array $reqHeaders, array $expectHeaders, $expectBody = null ) {
 		try {
-			$resp = jq_req( "http://{$server}{$path}", $reqHeaders );
+			$resp = jq_req( "{$server}{$path}", $reqHeaders );
 			foreach ( $expectHeaders as $key => $val ) {
 				// Tolerate E-Tag weakning (which Highwinds CDN does)
 				if ( $key == 'etag' ) {
