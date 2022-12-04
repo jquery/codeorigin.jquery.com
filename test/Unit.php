@@ -20,7 +20,9 @@ function jq_req( $url, array $reqHeaders = [] ) {
 				'connection'
 			];
 			$len = strlen( $header );
-			if ( preg_match( "/^(HTTP\/(?:1\.[01]|2)) (\d{3} .*)/", $header, $m ) ) {
+			// Both HTTP/1.1 and HTTP/2 are valid
+			// Under HTTP/2, the status code is an integer without textual reason
+			if ( preg_match( "/^(HTTP\/(?:1\.[01]|2)) (\d+)/", $header, $m ) ) {
 				$resp['headers'] = [];
 				$resp['headers']['status'] = trim( $m[2] );
 			} else {

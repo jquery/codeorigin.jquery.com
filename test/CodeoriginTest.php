@@ -18,7 +18,7 @@ Unit::start();
 // Domain root
 
 Unit::testHttp( $server, '/', [], [
-	'status' => '301 Moved Permanently',
+	'status' => '301',
 	'server' => 'nginx',
 	'location' => 'https://releases.jquery.com/',
 ] );
@@ -26,7 +26,7 @@ Unit::testHttp( $server, '/', [], [
 // Static assets
 
 Unit::testHttp( $server, '/jquery-3.0.0.js', [], [
-	'status' => '200 OK',
+	'status' => '200',
 	'server' => 'nginx',
 	'content-type' => 'application/javascript; charset=utf-8',
 	'content-length' => '263268',
@@ -40,7 +40,7 @@ Unit::testHttp( $server, '/jquery-3.0.0.js', [], [
 ] );
 
 Unit::testHttp( $server, '/qunit/qunit-2.0.0.css', [], [
-	'status' => '200 OK',
+	'status' => '200',
 	'server' => 'nginx',
 	'content-type' => 'text/css',
 	'content-length' => '7456',
@@ -54,7 +54,7 @@ Unit::testHttp( $server, '/qunit/qunit-2.0.0.css', [], [
 ] );
 
 Unit::testHttp( $server, '/ui/1.10.0/themes/base/images/ui-icons_222222_256x240.png', [], [
-	'status' => '200 OK',
+	'status' => '200',
 	'server' => 'nginx',
 	'content-type' => 'image/png',
 	'content-length' => '4369',
@@ -67,7 +67,7 @@ Unit::testHttp( $server, '/ui/1.10.0/themes/base/images/ui-icons_222222_256x240.
 ] );
 
 Unit::testHttp( $server, '/jquery-2.0.0.min.map', [], [
-	'status' => '200 OK',
+	'status' => '200',
 	'server' => 'nginx',
 	'content-type' => 'application/octet-stream',
 	'content-length' => '126081',
@@ -84,7 +84,7 @@ Unit::testHttp( $server, '/jquery-2.0.0.min.map', [], [
 Unit::testHttp( $server, '/jquery-3.0.0.js', [
 	"x-cdn-access: there-is-no-spoon"
 ], [
-	'status' => '200 OK',
+	'status' => '200',
 	'server' => 'nginx',
 	'content-type' => 'application/javascript; charset=utf-8',
 	'content-length' => '263268',
@@ -100,7 +100,7 @@ Unit::testHttp( $server, '/jquery-3.0.0.js', [
 // Renamed files
 
 Unit::testHttp( $server, '/jquery-git2.js', [], [
-	'status' => '301 Moved Permanently',
+	'status' => '301',
 	'server' => 'nginx',
 	'location' => 'https://code.jquery.com/jquery-git.js',
 ] );
@@ -108,7 +108,7 @@ Unit::testHttp( $server, '/jquery-git2.js', [], [
 // Moved to releases, WordPress page
 
 Unit::testHttp( $server, '/jquery/', [], [
-	'status' => '301 Moved Permanently',
+	'status' => '301',
 	'server' => 'nginx',
 	'location' => 'https://releases.jquery.com/jquery/',
 ] );
@@ -116,7 +116,7 @@ Unit::testHttp( $server, '/jquery/', [], [
 // Moved to releases, WordPress page without trailing slash
 
 Unit::testHttp( $server, '/jquery', [], [
-	'status' => '301 Moved Permanently',
+	'status' => '301',
 	'server' => 'nginx',
 	'location' => 'https://releases.jquery.com/jquery/',
 ] );
@@ -124,7 +124,7 @@ Unit::testHttp( $server, '/jquery', [], [
 // Moved to releases, root -git file
 
 Unit::testHttp( $server, '/jquery-git.js', [], [
-	'status' => '301 Moved Permanently',
+	'status' => '301',
 	'server' => 'nginx',
 	'location' => 'https://releases.jquery.com/git/jquery-git.js',
 ] );
@@ -132,19 +132,19 @@ Unit::testHttp( $server, '/jquery-git.js', [], [
 // Moved to releases, nested -git file
 
 Unit::testHttp( $server, '/color/jquery.color-git.min.js', [], [
-	'status' => '301 Moved Permanently',
+	'status' => '301',
 	'server' => 'nginx',
 	'location' => 'https://releases.jquery.com/git/color/jquery.color-git.min.js',
 ] );
 
 Unit::testHttp( $server, '/qunit/qunit-git.css', [], [
-	'status' => '301 Moved Permanently',
+	'status' => '301',
 	'server' => 'nginx',
 	'location' => 'https://releases.jquery.com/git/qunit/qunit-git.css',
 ] );
 
 Unit::testHttp( $server, '/mobile/git/jquery.mobile-git.min.map', [], [
-	'status' => '301 Moved Permanently',
+	'status' => '301',
 	'server' => 'nginx',
 	'location' => 'https://releases.jquery.com/git/mobile/git/jquery.mobile-git.min.map',
 ] );
@@ -152,7 +152,7 @@ Unit::testHttp( $server, '/mobile/git/jquery.mobile-git.min.map', [], [
 // Moved to releases, any file under /mobile/git
 
 Unit::testHttp( $server, '/mobile/git/images/icons-png/power-black.png', [], [
-	'status' => '301 Moved Permanently',
+	'status' => '301',
 	'server' => 'nginx',
 	'location' => 'https://releases.jquery.com/git/mobile/git/images/icons-png/power-black.png',
 ] );
@@ -160,7 +160,7 @@ Unit::testHttp( $server, '/mobile/git/images/icons-png/power-black.png', [], [
 // Moved to releases, any file under /git (new-style URL)
 
 Unit::testHttp( $server, '/git/qunit/qunit-git.css', [], [
-	'status' => '301 Moved Permanently',
+	'status' => '301',
 	'server' => 'nginx',
 	'location' => 'https://releases.jquery.com/git/qunit/qunit-git.css',
 ] );
