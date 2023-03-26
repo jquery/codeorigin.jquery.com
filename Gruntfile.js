@@ -323,7 +323,7 @@ grunt.registerTask( "build-index", function() {
 
 	function cdnSriLink( file, label ) {
 		var sri = "sha256-" + sriHashes[ `@cdn/${ file }` ].hashes.sha256,
-			cdnOrigin = grunt.config( "wordpress" ).cdn_origin;
+			cdnOrigin = grunt.config( "wordpress" ).cdn_origin || "https://code.jquery.com";
 		return `<a
 			class='open-sri-modal'
 			href='${ cdnOrigin }/${ file }'

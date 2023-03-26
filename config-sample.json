@@ -1,6 +1,5 @@
 {
 	"url": "vagrant.codeorigin.jquery.com",
 	"username": "admin",
-	"password": "secret",
-	"cdn_origin": "https://code.jquery.com"
+	"password": "secret"
 }
