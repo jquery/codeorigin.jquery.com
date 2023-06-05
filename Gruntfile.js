@@ -7,6 +7,8 @@ var _ = require( "lodash" ),
 	Handlebars = require( "handlebars" ),
 	http = require( "http" );
 
+const CDN_ORIGIN = "https://code.jquery.com";
+
 grunt.loadNpmTasks( "grunt-jquery-content" );
 grunt.loadNpmTasks( "grunt-sri" );
 
@@ -323,7 +325,7 @@ grunt.registerTask( "build-index", function() {
 
 	function cdnSriLink( file, label ) {
 		var sri = "sha256-" + sriHashes[ `@cdn/${ file }` ].hashes.sha256,
-			cdnOrigin = grunt.config( "wordpress" ).cdn_origin || "https://code.jquery.com";
+			cdnOrigin = grunt.config( "wordpress" ).cdn_origin || CDN_ORIGIN;
 		return `<a
 			class='open-sri-modal'
 			href='${ cdnOrigin }/${ file }'
@@ -332,7 +334,7 @@ grunt.registerTask( "build-index", function() {
 	}
 
 	function cdnLink( file, label ) {
-		var cdnOrigin = grunt.config( "wordpress" ).cdn_origin;
+		var cdnOrigin = grunt.config( "wordpress" ).cdn_origin || CDN_ORIGIN;
 		return `<a href='${ cdnOrigin }/${ file }'>${ label }</a>`;
 	}
 
@@ -383,7 +385,7 @@ grunt.registerTask( "build-index", function() {
 
 	Handlebars.registerHelper( "uiTheme", function( release ) {
 		var url,
-			cdnOrigin = grunt.config( "wordpress" ).cdn_origin;
+			cdnOrigin = grunt.config( "wordpress" ).cdn_origin || CDN_ORIGIN;
 
 		// TODO: link to minified theme if available
 		if ( release.themes.indexOf( "smoothness" ) !== -1 ) {
