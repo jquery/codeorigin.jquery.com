@@ -1,4 +1,5 @@
 {
+  "name": "jquery-cdn",
   "private": true,
   "dependencies": {
     "grunt": "1.5.3",

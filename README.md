@@ -1,4 +1,4 @@
-codeorigin.jquery.com
+jQuery CDN
 =====================
 
 ## Add new assets
