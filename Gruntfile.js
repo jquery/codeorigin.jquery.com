@@ -120,10 +120,14 @@ grunt.registerTask( "build-index", function() {
 				/(jquery-migrate-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min))?\.js)/ );
 
 		function addTypes( release ) {
-			var minFilename = release.filename.replace( ".js", ".min.js" ),
-				packFilename = release.filename.replace( ".js", ".pack.js" ),
-				slimFilename = release.filename.replace( ".js", ".slim.js" ),
-				slimMinFilename = release.filename.replace( ".js", ".slim.min.js" );
+			const minFilename = release.filename.replace( ".js", ".min.js" );
+			const packFilename = release.filename.replace( ".js", ".pack.js" );
+			const slimFilename = release.filename.replace( ".js", ".slim.js" );
+			const slimMinFilename = release.filename.replace( ".js", ".slim.min.js" );
+			const moduleFilename = release.filename.replace( ".js", ".module.js" );
+			const minModuleFilename = release.filename.replace( ".js", ".module.min.js" );
+			const slimModuleFilename = release.filename.replace( ".js", ".slim.module.js" );
+			const slimMinModuleFilename = release.filename.replace( ".js", ".slim.module.min.js" );
 
 			if ( files.indexOf( "cdn/" + minFilename ) !== -1 ) {
 				release.minified = minFilename;
@@ -136,6 +140,18 @@ grunt.registerTask( "build-index", function() {
 			}
 			if ( files.indexOf( "cdn/" + slimMinFilename ) !== -1 ) {
 				release.slimMinified = slimMinFilename;
+			}
+			if ( files.indexOf( "cdn/" + moduleFilename ) !== -1 ) {
+				release.module = moduleFilename;
+			}
+			if ( files.indexOf( "cdn/" + minModuleFilename ) !== -1 ) {
+				release.minifiedModule = minModuleFilename;
+			}
+			if ( files.indexOf( "cdn/" + slimModuleFilename ) !== -1 ) {
+				release.slimModule = slimModuleFilename;
+			}
+			if ( files.indexOf( "cdn/" + slimMinModuleFilename ) !== -1 ) {
+				release.slimMinifiedModule = slimMinModuleFilename;
 			}
 		}
 
@@ -366,7 +382,9 @@ grunt.registerTask( "build-index", function() {
 	} );
 
 	Handlebars.registerHelper( "release", function( prefix, release ) {
-		var html = prefix + " " + release.version + " - " + cdnSriLink( release.filename, "uncompressed" );
+		var html = prefix + " " + release.version + " - ";
+		
+		html += cdnSriLink( release.filename, "uncompressed" );
 		if ( release.minified ) {
 			html += ", " + cdnSriLink( release.minified, "minified" );
 		}
@@ -378,6 +396,18 @@ grunt.registerTask( "build-index", function() {
 		}
 		if ( release.slimMinified ) {
 			html += ", " + cdnSriLink( release.slimMinified, "slim minified" );
+		}
+		if ( release.module ) {
+			html += ", " + cdnSriLink( release.module,"uncompressed (module)" );
+		}
+		if ( release.minifiedModule ) {
+			html += ", " + cdnSriLink( release.minifiedModule, "minified (module)" );
+		}
+		if ( release.slimModule ) {
+			html += ", " + cdnSriLink( release.slimModule, "slim (module)" );
+		}
+		if ( release.slimMinifiedModule ) {
+			html += ", " + cdnSriLink( release.slimMinifiedModule, "slim minified (module)" );
 		}
 
 		return new Handlebars.SafeString( html );
