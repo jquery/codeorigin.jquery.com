@@ -2,11 +2,11 @@
   "name": "jquery-cdn",
   "private": true,
   "dependencies": {
-    "grunt": "1.5.3",
-    "grunt-jquery-content": "3.1.0",
+    "grunt": "1.6.1",
+    "grunt-jquery-content": "3.3.1",
     "grunt-sri": "0.2.0",
-    "handlebars": "4.7.7",
+    "handlebars": "4.7.8",
     "lodash": "4.17.21",
-    "semver": "7.5.2"
+    "semver": "7.5.4"
   }
 }
