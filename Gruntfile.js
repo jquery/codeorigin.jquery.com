@@ -382,32 +382,40 @@ grunt.registerTask( "build-index", function() {
 	} );
 
 	Handlebars.registerHelper( "release", function( prefix, release ) {
-		var html = prefix + " " + release.version + " - ";
-		
-		html += cdnSriLink( release.filename, "uncompressed" );
+		var html = prefix + " " + release.version + ": ";
+		var scriptHtml = "";
+		var moduleHtml = "";
+
+		scriptHtml += cdnSriLink( release.filename, "uncompressed" );
 		if ( release.minified ) {
-			html += ", " + cdnSriLink( release.minified, "minified" );
+			scriptHtml += `, ${ cdnSriLink( release.minified, "minified" ) }`;
 		}
 		if ( release.packed ) {
-			html += ", " + cdnSriLink( release.packed, "packed" );
+			scriptHtml += `, ${ cdnSriLink( release.packed, "packed" ) }`;
 		}
 		if ( release.slim ) {
-			html += ", " + cdnSriLink( release.slim, "slim" );
+			scriptHtml += `, ${ cdnSriLink( release.slim, "slim" ) }`;
 		}
 		if ( release.slimMinified ) {
-			html += ", " + cdnSriLink( release.slimMinified, "slim minified" );
+			scriptHtml += `, ${ cdnSriLink( release.slimMinified, "slim minified" ) }`;
 		}
 		if ( release.module ) {
-			html += ", " + cdnSriLink( release.module,"uncompressed (module)" );
+			moduleHtml += cdnSriLink( release.module,"uncompressed" );
 		}
 		if ( release.minifiedModule ) {
-			html += ", " + cdnSriLink( release.minifiedModule, "minified (module)" );
+			moduleHtml += `, ${ cdnSriLink( release.minifiedModule, "minified" ) }`;
 		}
 		if ( release.slimModule ) {
-			html += ", " + cdnSriLink( release.slimModule, "slim (module)" );
+			moduleHtml += `, ${ cdnSriLink( release.slimModule, "slim" ) }`;
 		}
 		if ( release.slimMinifiedModule ) {
-			html += ", " + cdnSriLink( release.slimMinifiedModule, "slim minified (module)" );
+			moduleHtml += `, ${ cdnSriLink( release.slimMinifiedModule, "slim minified" ) }`;
+		}
+
+		if ( release.module ) {
+			html += `<br>script: ${ scriptHtml }<br>module: ${ moduleHtml }`
+		} else {
+			html += scriptHtml;
 		}
 
 		return new Handlebars.SafeString( html );
