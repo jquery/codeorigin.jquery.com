@@ -120,10 +120,14 @@ grunt.registerTask( "build-index", function() {
 				/(jquery-migrate-(\d+\.\d+(?:\.\d+)?[^.]*)(?:\.(min))?\.js)/ );
 
 		function addTypes( release ) {
-			var minFilename = release.filename.replace( ".js", ".min.js" ),
-				packFilename = release.filename.replace( ".js", ".pack.js" ),
-				slimFilename = release.filename.replace( ".js", ".slim.js" ),
-				slimMinFilename = release.filename.replace( ".js", ".slim.min.js" );
+			const minFilename = release.filename.replace( ".js", ".min.js" );
+			const packFilename = release.filename.replace( ".js", ".pack.js" );
+			const slimFilename = release.filename.replace( ".js", ".slim.js" );
+			const slimMinFilename = release.filename.replace( ".js", ".slim.min.js" );
+			const moduleFilename = release.filename.replace( ".js", ".module.js" );
+			const minModuleFilename = release.filename.replace( ".js", ".module.min.js" );
+			const slimModuleFilename = release.filename.replace( ".js", ".slim.module.js" );
+			const slimMinModuleFilename = release.filename.replace( ".js", ".slim.module.min.js" );
 
 			if ( files.indexOf( "cdn/" + minFilename ) !== -1 ) {
 				release.minified = minFilename;
@@ -136,6 +140,18 @@ grunt.registerTask( "build-index", function() {
 			}
 			if ( files.indexOf( "cdn/" + slimMinFilename ) !== -1 ) {
 				release.slimMinified = slimMinFilename;
+			}
+			if ( files.indexOf( "cdn/" + moduleFilename ) !== -1 ) {
+				release.module = moduleFilename;
+			}
+			if ( files.indexOf( "cdn/" + minModuleFilename ) !== -1 ) {
+				release.minifiedModule = minModuleFilename;
+			}
+			if ( files.indexOf( "cdn/" + slimModuleFilename ) !== -1 ) {
+				release.slimModule = slimModuleFilename;
+			}
+			if ( files.indexOf( "cdn/" + slimMinModuleFilename ) !== -1 ) {
+				release.slimMinifiedModule = slimMinModuleFilename;
 			}
 		}
 
@@ -366,18 +382,40 @@ grunt.registerTask( "build-index", function() {
 	} );
 
 	Handlebars.registerHelper( "release", function( prefix, release ) {
-		var html = prefix + " " + release.version + " - " + cdnSriLink( release.filename, "uncompressed" );
+		var html = prefix + " " + release.version + ": ";
+		var scriptHtml = "";
+		var moduleHtml = "";
+
+		scriptHtml += cdnSriLink( release.filename, "uncompressed" );
 		if ( release.minified ) {
-			html += ", " + cdnSriLink( release.minified, "minified" );
+			scriptHtml += `, ${ cdnSriLink( release.minified, "minified" ) }`;
 		}
 		if ( release.packed ) {
-			html += ", " + cdnSriLink( release.packed, "packed" );
+			scriptHtml += `, ${ cdnSriLink( release.packed, "packed" ) }`;
 		}
 		if ( release.slim ) {
-			html += ", " + cdnSriLink( release.slim, "slim" );
+			scriptHtml += `, ${ cdnSriLink( release.slim, "slim" ) }`;
 		}
 		if ( release.slimMinified ) {
-			html += ", " + cdnSriLink( release.slimMinified, "slim minified" );
+			scriptHtml += `, ${ cdnSriLink( release.slimMinified, "slim minified" ) }`;
+		}
+		if ( release.module ) {
+			moduleHtml += cdnSriLink( release.module,"uncompressed" );
+		}
+		if ( release.minifiedModule ) {
+			moduleHtml += `, ${ cdnSriLink( release.minifiedModule, "minified" ) }`;
+		}
+		if ( release.slimModule ) {
+			moduleHtml += `, ${ cdnSriLink( release.slimModule, "slim" ) }`;
+		}
+		if ( release.slimMinifiedModule ) {
+			moduleHtml += `, ${ cdnSriLink( release.slimMinifiedModule, "slim minified" ) }`;
+		}
+
+		if ( release.module ) {
+			html += `<br>script: ${ scriptHtml }<br>module: ${ moduleHtml }`
+		} else {
+			html += scriptHtml;
 		}
 
 		return new Handlebars.SafeString( html );
