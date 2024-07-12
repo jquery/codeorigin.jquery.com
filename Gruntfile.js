@@ -64,6 +64,15 @@ grunt.registerTask( "build-index", function() {
 		} );
 	}
 
+	/**
+	 * @param {string[]} files
+	 * @param {RegExp} regex
+	 *  - Overall match: full path from /cdn/
+	 *  - Match [1]: (unused) overall match
+	 *  - Match [2]: semver version
+	 *  - Match [3] (optional) file extension prefix. If present, file is presumed redundant and skipped.
+	 * @return {Object[]}
+	 */
 	function parseReleases( files, regex ) {
 		return files
 			.map( function( filename ) {
@@ -303,8 +312,8 @@ grunt.registerTask( "build-index", function() {
 
 	function getQunitData() {
 		var files = grunt.file.expand( "cdn/qunit/*.js" ),
-			releases = parseStableReleases( files,
-				/(qunit\/qunit-(\d+\.\d+\.\d+[^.]*)(?:\.(min))?\.js)/ );
+			releases = parseReleases( files,
+				/(qunit\/qunit-(\d+\.\d+\.\d+(?:[A-z-]+\.\d+)?)(?:\.(min))?\.js)$/ );
 
 		releases.forEach( function( release ) {
 			release.theme = release.filename.replace( ".js", ".css" );
