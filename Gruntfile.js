@@ -311,12 +311,18 @@ grunt.registerTask( "build-index", function() {
 	}
 
 	function getQunitData() {
-		var files = grunt.file.expand( "cdn/qunit/*.js" ),
-			releases = parseReleases( files,
-				/(qunit\/qunit-(\d+\.\d+\.\d+(?:[A-z-]+\.\d+)?)(?:\.(min))?\.js)$/ );
+		const files = grunt.file.expand( "cdn/qunit/*.js" );
+		const releases = parseReleases(
+			files,
+			/(qunit\/qunit-(\d+\.\d+\.\d+(?:[A-z-]+\.\d+)?)(?:\.(min))?\.js)$/
+		);
 
 		releases.forEach( function( release ) {
 			release.theme = release.filename.replace( ".js", ".css" );
+			const moduleFilename = release.filename.replace( ".js", ".module.js" );
+			if ( files.includes( "cdn/" + moduleFilename ) ) {
+				release.module = moduleFilename;
+			}
 		} );
 
 		return {
