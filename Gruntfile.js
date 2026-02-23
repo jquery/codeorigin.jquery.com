@@ -314,7 +314,9 @@ grunt.registerTask( "build-index", function() {
 		const files = grunt.file.expand( "cdn/qunit/*.js" );
 		const releases = parseReleases(
 			files,
-			/(qunit\/qunit-(\d+\.\d+\.\d+(?:[A-z-]+\.\d+)?)(?:\.(min))?\.js)$/
+			// See also isValidVersion
+			// https://github.com/qunitjs/qunit/blob/3.0.0-rc1/build/utils.js#L80
+			/(qunit\/qunit-(\d+\.\d+\.\d+(?:-alpha\.\d+|-rc\d+)?)(?:\.(min))?\.js)$/
 		);
 
 		releases.forEach( function( release ) {
