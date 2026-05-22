@@ -2,7 +2,7 @@
   "name": "jquery-cdn",
   "private": true,
   "dependencies": {
-    "grunt": "1.6.1",
+    "grunt": "1.6.2",
     "grunt-jquery-content": "3.3.1",
     "grunt-sri": "0.2.0",
     "handlebars": "4.7.9",
